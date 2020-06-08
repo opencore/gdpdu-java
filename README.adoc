@@ -1,0 +1,25 @@
+= GDPdU / GoBD Java
+
+This is a simple Java project that can read GDPdU/GoDB `index.xml` files and provide a rich Java model for them.
+
+NOTE: What used to be the _GoDB_ has been replaced by _GDPdU_ in 2015.
+The technical standard has not changed though.
+
+== Terminology
+
+GDPdU :: _Grundsätze zum Datenzugriff und zur Prüfbarkeit digitaler Unterlagen_
++
+These have replaced the _GoBD_ in 2015
+The GDPdU was initially released in 2014 but the latest version is from 2019.
+
+GoBD :: _Grundsätze zur ordnungsmäßigen Führung und Aufbewahrung von Büchern, Aufzeichnungen und Unterlagen in elektronischer Form sowie zum Datenzugriff_
++
+They were replaced by  the _GDPdU_ in 2015.
+
+== Resources
+
+* https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Weitere_Steuerthemen/Abgabenordnung/2019-11-28-GoBD.pdf?__blob=publicationFile&v=12[GoBD 2019-11-28]
+** https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Weitere_Steuerthemen/Abgabenordnung/2019-11-28-GoBD.html[Quelle]
+* https://www.bundesfinanzministerium.de/Content/DE/Standardartikel/Themen/Steuern/Weitere_Steuerthemen/Abgabeordnung/2019-11-28-GoBD-Ergaenzende-Informationen-zur-Datentraegerueberlassung.html[Ergänzende Informationen zur Datenträgerüberlassung] der GoBD
+* http://support.audicon.net/index.php/idea/idea-aktuelle-downloads/doc_details/66-dtd-datei-vom-01092004.html[GDPdU DTD 2004]
+* http://support.audicon.net/index.php/idea/idea-aktuelle-downloads/doc_details/28-gdpdu-beschreibungsstandard.html[GDPdU Beschreibung]
