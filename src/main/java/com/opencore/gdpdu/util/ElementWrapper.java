@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ElementWrapper {
+class ElementWrapper {
 
   private final Element element;
   private Element currentChild;

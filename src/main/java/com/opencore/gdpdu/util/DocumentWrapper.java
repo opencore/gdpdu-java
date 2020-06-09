@@ -14,7 +14,7 @@ package com.opencore.gdpdu.util;
 
 import org.w3c.dom.Document;
 
-public class DocumentWrapper {
+class DocumentWrapper {
 
   private final Document document;
 
