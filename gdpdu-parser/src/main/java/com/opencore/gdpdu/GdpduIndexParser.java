@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 // TODO: Should add a method to validate the DataSet using Hibernate Validator
-public class GdpduParser {
+public class GdpduIndexParser {
 
   public static DataSet parseXmlFile(String path) {
     return parseXmlFile(new File(path));
@@ -49,7 +49,7 @@ public class GdpduParser {
 
   public static DataSet parseXmlFile(File inputFile) {
     if (!inputFile.canRead()) {
-      throw new IllegalArgumentException("File does not exist or can not be read");
+      throw new IllegalArgumentException("File [" + inputFile.getName() + "] does not exist or can not be read");
     }
 
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -64,6 +64,7 @@ public class GdpduParser {
 
     // This makes it so that both published DTD versions can be read from classpath
     // Usually the parser only looks relative to the source file.
+    // As per the GdPDU spec it is actually required to have the DTD file next to the index.xml file
     db.setEntityResolver((publicId, systemId) -> {
       if (systemId.trim().toLowerCase().endsWith("gdpdu-01-09-2004.dtd")) {
         return new InputSource(GdpduTool.class.getClassLoader().getResourceAsStream("gdpdu-01-09-2004.dtd"));
@@ -164,11 +165,11 @@ public class GdpduParser {
       ele -> variableLength.getVariablePrimaryKeys().add(parseVariableColumn(ele)));
     element.processOptionalElements("VariableColumn",
       ele -> variableLength.getVariableColumns().add(parseVariableColumn(ele)));
-    element.processOptionalElements("ForeignKey", ele -> variableLength.getForeignKeys().add(parseForeingKey(ele)));
+    element.processOptionalElements("ForeignKey", ele -> variableLength.getForeignKeys().add(parseForeignKey(ele)));
     return variableLength;
   }
 
-  private static ForeignKey parseForeingKey(ElementWrapper element) {
+  private static ForeignKey parseForeignKey(ElementWrapper element) {
     ForeignKey foreignKey = new ForeignKey();
     element.processOptionalTextElements("Name", ele -> foreignKey.getNames().add(ele));
     element.processTextElement("References", foreignKey::setReferences);

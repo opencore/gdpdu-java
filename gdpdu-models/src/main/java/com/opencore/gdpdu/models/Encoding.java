@@ -12,6 +12,9 @@
  */
 package com.opencore.gdpdu.models;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 /**
  * Supported codepages:
  * Be careful to explicitly define RecordDelimiter when using a non-default codepage.
@@ -38,31 +41,41 @@ public enum Encoding {
   /**
    * Legt die Verwendung der Codepage ANSI fest.
    */
-  ANSI,
+  ANSI(Charset.forName("Cp1252")),
 
   /**
    * Legt die Verwendung der Codepage Macintosh fest.
    */
-  Macintosh,
+  Macintosh(null),
 
   /**
    * Legt die Verwendung der Codepage IBM-PC-ASCII fest.
    */
-  OEM,
+  OEM(null),
 
   /**
    * Legt die Verwendung der Codepage UTF16 fest.
    */
-  UTF16,
+  UTF16(StandardCharsets.UTF_16),
 
   /**
    * Legt die Verwendung der Codepage UTF7 fest.
    */
-  UTF7,
+  UTF7(null),
 
   /**
    * Legt die Verwendung der Codepage UTF8 fest.
    */
-  UTF8
+  UTF8(StandardCharsets.UTF_8);
+
+  private final Charset charset;
+
+  Encoding(Charset charset) {
+    this.charset = charset;
+  }
+
+  public Charset getCharset() {
+    return charset;
+  }
 
 }

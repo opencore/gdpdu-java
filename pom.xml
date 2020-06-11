@@ -4,19 +4,21 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.opencore</groupId>
-  <artifactId>gdpdu</artifactId>
-   <version>0.1-SNAPSHOT</version>
+  <artifactId>gdpdu-parent</artifactId>
+  <packaging>pom</packaging>
+  <version>0.1-SNAPSHOT</version>
 
-  <name>gobd</name>
+  <name>GDPdU Parent</name>
+
+  <modules>
+    <module>gdpdu-models</module>
+    <module>gdpdu-parser</module>
+  </modules>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-
-    <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
-    <jakarta.el.version>3.0.3</jakarta.el.version>
-    <jakarta.validation-api.version>2.0.2</jakarta.validation-api.version>
 
     <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -28,26 +30,6 @@
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
   </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.hibernate.validator</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <version>${hibernate-validator.version}</version>
-    </dependency>
-    <dependency>
-      <!-- Required for Hibernate Validator -->
-      <groupId>org.glassfish</groupId>
-      <artifactId>jakarta.el</artifactId>
-      <version>${jakarta.el.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.validation</groupId>
-      <artifactId>jakarta.validation-api</artifactId>
-      <version>${jakarta.validation-api.version}</version>
-    </dependency>
-  </dependencies>
 
   <build>
     <pluginManagement>
@@ -91,13 +73,5 @@
       </plugins>
     </pluginManagement>
   </build>
-
-  <distributionManagement>
-    <repository>
-      <id>github</id>
-      <name>GitHub OpenCore Apache Maven Packages</name>
-      <url>https://maven.pkg.github.com/opencore/gdpdu-java</url>
-    </repository>
-  </distributionManagement>
 
 </project>
