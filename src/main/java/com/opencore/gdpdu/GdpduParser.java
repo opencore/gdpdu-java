@@ -10,7 +10,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu.util;
+package com.opencore.gdpdu;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.opencore.gdpdu.GdpduTool;
 import com.opencore.gdpdu.models.AccuracyType;
 import com.opencore.gdpdu.models.DataSet;
 import com.opencore.gdpdu.models.DataSupplier;
@@ -34,11 +33,14 @@ import com.opencore.gdpdu.models.Table;
 import com.opencore.gdpdu.models.Validity;
 import com.opencore.gdpdu.models.VariableColumn;
 import com.opencore.gdpdu.models.VariableLength;
+import com.opencore.gdpdu.util.DocumentWrapper;
+import com.opencore.gdpdu.util.ElementWrapper;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+// TODO: Should add a method to validate the DataSet using Hibernate Validator
 public class GdpduParser {
 
   public static DataSet parseXmlFile(String path) {

@@ -1,7 +1,6 @@
 package com.opencore.gdpdu;
 
 import com.opencore.gdpdu.models.DataSet;
-import com.opencore.gdpdu.util.GdpduParser;
 
 public class GdpduTool {
 
