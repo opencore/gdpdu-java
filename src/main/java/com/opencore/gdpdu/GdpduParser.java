@@ -158,7 +158,7 @@ public class GdpduParser {
   private static VariableLength parseVariableLength(ElementWrapper element) {
     VariableLength variableLength = new VariableLength();
     element.processOptionalTextElement("ColumnDelimiter", variableLength::setColumnDelimiter);
-    element.processOptionalTextElement("RecordDelimited", variableLength::setRecordDelimiter);
+    element.processOptionalTextElement("RecordDelimiter", variableLength::setRecordDelimiter);
     element.processOptionalTextElement("TextEncapsulator", variableLength::setTextEncapsulator);
     element.processOptionalElements("VariablePrimaryKey",
       ele -> variableLength.getVariablePrimaryKeys().add(parseVariableColumn(ele)));
