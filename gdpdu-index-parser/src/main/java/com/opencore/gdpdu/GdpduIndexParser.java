@@ -35,19 +35,18 @@ import com.opencore.gdpdu.models.VariableColumn;
 import com.opencore.gdpdu.models.VariableLength;
 import com.opencore.gdpdu.util.DocumentWrapper;
 import com.opencore.gdpdu.util.ElementWrapper;
-import org.xml.sax.ErrorHandler;
+import com.opencore.gdpdu.util.LoggingErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 // TODO: Should add a method to validate the DataSet using Hibernate Validator
 public class GdpduIndexParser {
 
-  public static DataSet parseXmlFile(String path) {
-    return parseXmlFile(new File(path));
+  public static DataSet parseXmlFile(String path, boolean strict) {
+    return parseXmlFile(new File(path), strict);
   }
 
-  public static DataSet parseXmlFile(File inputFile) {
+  public static DataSet parseXmlFile(File inputFile, boolean strict) {
     if (!inputFile.canRead()) {
       throw new IllegalArgumentException("File [" + inputFile.getName() + "] does not exist or can not be read");
     }
@@ -62,36 +61,22 @@ public class GdpduIndexParser {
       throw new IllegalStateException(e);
     }
 
-    // This makes it so that both published DTD versions can be read from classpath
-    // Usually the parser only looks relative to the source file.
-    // As per the GdPDU spec it is actually required to have the DTD file next to the index.xml file
-    db.setEntityResolver((publicId, systemId) -> {
-      if (systemId.trim().toLowerCase().endsWith("gdpdu-01-09-2004.dtd")) {
-        return new InputSource(GdpduTool.class.getClassLoader().getResourceAsStream("gdpdu-01-09-2004.dtd"));
-      } else if (systemId.trim().toLowerCase().endsWith("gdpdu-01-08-2002.dtd")) {
-        return new InputSource(GdpduTool.class.getClassLoader().getResourceAsStream("gdpdu-01-08-2002.dtd"));
-      } else {
-        return null;
-      }
-    });
+    if (!strict) {
+      // This makes it so that both published DTD versions can be read from classpath
+      // Usually the parser only looks relative to the source file.
+      // As per the GdPDU spec it is actually required to have the DTD file next to the index.xml file
+      db.setEntityResolver((publicId, systemId) -> {
+        if (systemId.trim().toLowerCase().endsWith("gdpdu-01-09-2004.dtd")) {
+          return new InputSource(GdpduTool.class.getClassLoader().getResourceAsStream("gdpdu-01-09-2004.dtd"));
+        } else if (systemId.trim().toLowerCase().endsWith("gdpdu-01-08-2002.dtd")) {
+          return new InputSource(GdpduTool.class.getClassLoader().getResourceAsStream("gdpdu-01-08-2002.dtd"));
+        } else {
+          return null;
+        }
+      });
+    }
 
-    // TODO: Should log all errors but then stop if it encountered any
-    db.setErrorHandler(new ErrorHandler() {
-      @Override
-      public void warning(SAXParseException exception) throws SAXException {
-        System.err.println(exception);
-      }
-
-      @Override
-      public void error(SAXParseException exception) throws SAXException {
-        System.err.println(exception);
-      }
-
-      @Override
-      public void fatalError(SAXParseException exception) throws SAXException {
-        System.err.println(exception);
-      }
-    });
+    db.setErrorHandler(new LoggingErrorHandler());
 
     DocumentWrapper doc;
     try {
