@@ -10,47 +10,8 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu.models;
+package com.opencore.gdpdu.index.util;
 
-import java.util.StringJoiner;
-
-public class Mapping {
-
-  private String description;
-  private String from;
-  private String to;
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public String getFrom() {
-    return from;
-  }
-
-  public void setFrom(String from) {
-    this.from = from;
-  }
-
-  public String getTo() {
-    return to;
-  }
-
-  public void setTo(String to) {
-    this.to = to;
-  }
-
-  @Override
-  public String toString() {
-    return new StringJoiner(", ", Mapping.class.getSimpleName() + "[", "]")
-      .add("description='" + description + "'")
-      .add("from='" + from + "'")
-      .add("to='" + to + "'")
-      .toString();
-  }
+public @interface ValidFixedColumn {
 
 }

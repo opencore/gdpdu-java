@@ -10,49 +10,22 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu.models;
+package com.opencore.gdpdu.index.models;
 
 import java.util.StringJoiner;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
 
-/**
- * Use Alias to reference columns with different names in a ForeignKey element.
- * These Alias elements are optional.
- * <p/>
- * The following rules apply to the Alias element:
- * <ul>
- *   <li>One Alias can be used per ForeignKey.</li>
- *   <li>Alias elements can appear in any order.</li>
- * </ul>
- * Example:
- *
- * Table Orders has a primary key OrderId
- * Table Accounts has a foreign key Order.
- * <p/>
- * You can use the Alias element to specify Order references OrderId.
- *
- * <pre>
- * {@code
- * <ForeignKey>
- *    <Name>Order</Name>
- *    <Name>Customer</Name>
- *    <References>Orders</References>
- *    <Alias>
- *      <From>Order</From>
- *      <To>OrderId</To>
- *    </Alias>
- *  </ForeignKey>
- * }
- * </pre>
- */
-public class Alias {
+public class Range {
 
-  @NotBlank
   private String from;
-
-  @NotBlank
   private String to;
 
+  @PositiveOrZero
+  private String length;
+
+  /**
+   * Enthält Informationen über den Startwert eines Wertebereichs.
+   */
   public String getFrom() {
     return from;
   }
@@ -61,6 +34,9 @@ public class Alias {
     this.from = from;
   }
 
+  /**
+   * Enthält Informationen über den Endwert eines Wertebereichs
+   */
   public String getTo() {
     return to;
   }
@@ -69,11 +45,23 @@ public class Alias {
     this.to = to;
   }
 
+  /**
+   * Enthält Informationen über die Länge von Attributen oder Datensätzen.
+   */
+  public String getLength() {
+    return length;
+  }
+
+  public void setLength(String length) {
+    this.length = length;
+  }
+
   @Override
   public String toString() {
-    return new StringJoiner(", ", Alias.class.getSimpleName() + "[", "]")
+    return new StringJoiner(", ", Range.class.getSimpleName() + "[", "]")
       .add("from='" + from + "'")
       .add("to='" + to + "'")
+      .add("length='" + length + "'")
       .toString();
   }
 

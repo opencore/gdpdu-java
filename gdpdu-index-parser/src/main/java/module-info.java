@@ -1,7 +1,6 @@
-module com.opencore.gdpdu.parser {
+module com.opencore.gdpdu.index {
+  requires com.opencore.gdpdu.models;
   requires java.xml;
 
-  requires com.opencore.gdpdu.models;
-
-  exports com.opencore.gdpdu;
+  exports com.opencore.gdpdu.index;
 }

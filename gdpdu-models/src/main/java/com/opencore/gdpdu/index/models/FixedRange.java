@@ -10,12 +10,47 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu.models;
+package com.opencore.gdpdu.index.models;
 
-public enum DataType {
+import java.util.StringJoiner;
 
-  Numeric,
-  AlphaNumeric,
-  Date
+public class FixedRange {
+
+  private String from;
+  private String to;
+  private long length;
+
+  public String getFrom() {
+    return from;
+  }
+
+  public void setFrom(String from) {
+    this.from = from;
+  }
+
+  public String getTo() {
+    return to;
+  }
+
+  public void setTo(String to) {
+    this.to = to;
+  }
+
+  public long getLength() {
+    return length;
+  }
+
+  public void setLength(long length) {
+    this.length = length;
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", FixedRange.class.getSimpleName() + "[", "]")
+      .add("from='" + from + "'")
+      .add("to='" + to + "'")
+      .add("length=" + length)
+      .toString();
+  }
 
 }

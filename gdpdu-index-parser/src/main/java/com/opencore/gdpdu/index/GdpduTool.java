@@ -10,25 +10,15 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu.models;
+package com.opencore.gdpdu.index;
 
-public enum AccuracyType {
+import com.opencore.gdpdu.index.models.DataSet;
 
-  /**
-   * Anzahl der Nachkommastellen.
-   * Vorsicht bei Daten, deren Genauigkeit grösser ist, als in Accuracy angegeben
-   */
-  Accuracy,
+public class GdpduTool {
 
-  /**
-   * Anzahl der Nachkommastellen, auch wenn in den Quelldaten keine Nachkommastellen angegeben sind.
-   * <p/>
-   * Beispiel:
-   * <ul>
-   *   <li>Quelldaten: „100; 200; 102; 5000;6587890“</li>
-   *   <li>ImpliedAccuracy 3: „0,100; 0,200; 0,102; 5,000; 6587,890“</li>
-   * </ul>
-   */
-  ImpliedAccuracy
+  public static void main(String[] args) {
+    DataSet dataSet = GdpduIndexParser.parseXmlFile(args[0], true);
+    System.out.println(dataSet);
+  }
 
 }

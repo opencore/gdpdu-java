@@ -22,10 +22,13 @@
     <version>0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>gdpdu-index-parser</artifactId>
+  <artifactId>gdpdu-data-parser</artifactId>
 
-  <name>GDPdU Index Parser</name>
-  <description>This library can parse INDEX.XML files according to the GDPdU spec</description>
+  <name>GDPdU Data Parser</name>
+
+  <properties>
+    <commons-csv.version>1.8</commons-csv.version>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -33,6 +36,23 @@
       <artifactId>gdpdu-models</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.opencore</groupId>
+      <artifactId>gdpdu-index-parser</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+      <version>${commons-csv.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+    </dependency>
   </dependencies>
-
 </project>

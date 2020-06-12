@@ -10,20 +10,37 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu.util;
+package com.opencore.gdpdu.index.models;
 
-import org.w3c.dom.Document;
+import java.util.StringJoiner;
 
-public class DocumentWrapper {
+public class Validity {
 
-  private final Document document;
+  private Range range;
+  private String format = "DD.MM.YYYY";
 
-  public DocumentWrapper(Document document) {
-    this.document = document;
+  public Range getRange() {
+    return range;
   }
 
-  public ElementWrapper getDocumentElement() {
-    return new ElementWrapper(document.getDocumentElement());
+  public void setRange(Range range) {
+    this.range = range;
+  }
+
+  public String getFormat() {
+    return format;
+  }
+
+  public void setFormat(String format) {
+    this.format = format;
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", Validity.class.getSimpleName() + "[", "]")
+      .add("range=" + range)
+      .add("format='" + format + "'")
+      .toString();
   }
 
 }

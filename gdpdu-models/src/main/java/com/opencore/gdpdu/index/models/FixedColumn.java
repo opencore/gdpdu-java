@@ -10,24 +10,32 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu.models;
+package com.opencore.gdpdu.index.models;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 
-public class VariableColumn {
+import com.opencore.gdpdu.index.util.ValidFixedColumn;
 
+/**
+ * Definiert eine Spalte (=Column) in einer Datei vom Typ FixedLength.
+ */
+@ValidFixedColumn
+public class FixedColumn {
+
+  @NotBlank
   private String name;
   private String description;
   private DataType dataType;
   private AccuracyType accuracyType;
-  private long accuracy;  // Numeric
   @PositiveOrZero
-  private Long maxLength; // AlphaNumeric
+  private long accuracy;  // Numeric
   private String format = "DD.MM.YYYY";  // Date
   private List<Mapping> mappings = new ArrayList<>();
+  private FixedRange fixedRange;
 
   public String getName() {
     return name;
@@ -73,19 +81,6 @@ public class VariableColumn {
     this.accuracy = accuracy;
   }
 
-  /**
-   * Enthält Informationen über die maximale Länge eines alphanumerischen Feldes in einer VariableLength Tabelle.
-   * <p/>
-   * Die Angabe von MaxLength bei dem Dateityp VariableLength beschleunigt den Importprozess, da andernfalls die Datei vor dem Importprozess geprüft wird und die maximalen Längen der Felder ermittelt wird.
-   */
-  public Long getMaxLength() {
-    return maxLength;
-  }
-
-  public void setMaxLength(Long maxLength) {
-    this.maxLength = maxLength;
-  }
-
   public String getFormat() {
     return format;
   }
@@ -102,17 +97,26 @@ public class VariableColumn {
     this.mappings = mappings;
   }
 
+  public FixedRange getFixedRange() {
+    return fixedRange;
+  }
+
+  public void setFixedRange(FixedRange fixedRange) {
+    this.fixedRange = fixedRange;
+  }
+
   @Override
   public String toString() {
-    return new StringJoiner(", ", VariableColumn.class.getSimpleName() + "[", "]")
+    return new StringJoiner(", ", FixedColumn.class.getSimpleName() + "[", "]")
       .add("name='" + name + "'")
       .add("description='" + description + "'")
       .add("dataType=" + dataType)
       .add("accuracyType=" + accuracyType)
       .add("accuracy=" + accuracy)
-      .add("maxLength=" + maxLength)
-      .add("format=" + format)
+      .add("format='" + format + "'")
       .add("mappings=" + mappings)
+      .add("fixedRange=" + fixedRange)
       .toString();
   }
+
 }

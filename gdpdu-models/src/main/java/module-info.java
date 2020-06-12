@@ -1,5 +1,6 @@
 module com.opencore.gdpdu.models {
   requires java.validation;
 
-  exports com.opencore.gdpdu.models;
+  exports com.opencore.gdpdu.index.models;
+  exports com.opencore.gdpdu.index.annotations;
 }

@@ -10,7 +10,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu;
+package com.opencore.gdpdu.index;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,24 +18,24 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.opencore.gdpdu.models.AccuracyType;
-import com.opencore.gdpdu.models.DataSet;
-import com.opencore.gdpdu.models.DataSupplier;
-import com.opencore.gdpdu.models.DataType;
-import com.opencore.gdpdu.models.Encoding;
-import com.opencore.gdpdu.models.Extension;
-import com.opencore.gdpdu.models.FixedLength;
-import com.opencore.gdpdu.models.ForeignKey;
-import com.opencore.gdpdu.models.Mapping;
-import com.opencore.gdpdu.models.Media;
-import com.opencore.gdpdu.models.Range;
-import com.opencore.gdpdu.models.Table;
-import com.opencore.gdpdu.models.Validity;
-import com.opencore.gdpdu.models.VariableColumn;
-import com.opencore.gdpdu.models.VariableLength;
-import com.opencore.gdpdu.util.DocumentWrapper;
-import com.opencore.gdpdu.util.ElementWrapper;
-import com.opencore.gdpdu.util.LoggingErrorHandler;
+import com.opencore.gdpdu.index.models.AccuracyType;
+import com.opencore.gdpdu.index.models.DataSet;
+import com.opencore.gdpdu.index.models.DataSupplier;
+import com.opencore.gdpdu.index.models.DataType;
+import com.opencore.gdpdu.index.models.Encoding;
+import com.opencore.gdpdu.index.models.Extension;
+import com.opencore.gdpdu.index.models.FixedLength;
+import com.opencore.gdpdu.index.models.ForeignKey;
+import com.opencore.gdpdu.index.models.Mapping;
+import com.opencore.gdpdu.index.models.Media;
+import com.opencore.gdpdu.index.models.Range;
+import com.opencore.gdpdu.index.models.Table;
+import com.opencore.gdpdu.index.models.Validity;
+import com.opencore.gdpdu.index.models.VariableColumn;
+import com.opencore.gdpdu.index.models.VariableLength;
+import com.opencore.gdpdu.index.util.DocumentWrapper;
+import com.opencore.gdpdu.index.util.ElementWrapper;
+import com.opencore.gdpdu.index.util.LoggingErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
