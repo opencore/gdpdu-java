@@ -18,7 +18,7 @@ import java.util.StringJoiner;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 
-import com.opencore.gdpdu.index.util.ValidFixedColumn;
+import com.opencore.gdpdu.index.validation.ValidFixedColumn;
 
 /**
  * Definiert eine Spalte (=Column) in einer Datei vom Typ FixedLength.
