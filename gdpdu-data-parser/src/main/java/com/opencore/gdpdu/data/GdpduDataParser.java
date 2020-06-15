@@ -99,7 +99,7 @@ public class GdpduDataParser {
 
     File csvFile = new File(directory, table.getUrl());
     // TODO:Check canRead() and abort/report
-    if (!csvFile.canRead()) {
+    if (!csvFile.canRead() || csvFile.isDirectory()) {
       return null;
     }
 

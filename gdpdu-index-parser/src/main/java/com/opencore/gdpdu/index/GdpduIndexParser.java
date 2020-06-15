@@ -47,8 +47,8 @@ public class GdpduIndexParser {
   }
 
   public static DataSet parseXmlFile(File inputFile, boolean strict) {
-    if (!inputFile.canRead()) {
-      throw new IllegalArgumentException("File [" + inputFile.getName() + "] does not exist or can not be read");
+    if (!inputFile.canRead() || inputFile.isDirectory()) {
+      throw new IllegalArgumentException("File [" + inputFile.getName() + "] does not exist, is a directory or can not be read");
     }
 
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
