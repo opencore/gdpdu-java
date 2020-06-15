@@ -33,35 +33,68 @@ import com.opencore.gdpdu.index.models.Table;
 import com.opencore.gdpdu.index.models.Validity;
 import com.opencore.gdpdu.index.models.VariableColumn;
 import com.opencore.gdpdu.index.models.VariableLength;
-import com.opencore.gdpdu.index.util.DocumentWrapper;
-import com.opencore.gdpdu.index.util.ElementWrapper;
+ import com.opencore.gdpdu.index.util.ElementWrapper;
 import com.opencore.gdpdu.index.util.LoggingErrorHandler;
+import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-// TODO: Should add a method to validate the DataSet using Hibernate Validator
+/**
+ * This class can be used to parse an {@code index.xml} file into a {@link DataSet}.
+ */
 public class GdpduIndexParser {
 
-  public static DataSet parseXmlFile(String path, boolean strict) {
-    return parseXmlFile(new File(path), strict);
+  public enum ParseMode {
+    /**
+     * Strict mode does validate DTD
+     */
+    STRICT,
+    LENIENT
   }
 
-  public static DataSet parseXmlFile(File inputFile, boolean strict) {
-    if (!inputFile.canRead() || inputFile.isDirectory()) {
-      throw new IllegalArgumentException("File [" + inputFile.getName() + "] does not exist, is a directory or can not be read");
+  public static DataSet parseXmlFile(String path) throws IOException {
+    return parseXmlFile(path, ParseMode.STRICT);
+  }
+
+  public static DataSet parseXmlFile(String path, ParseMode parseMode) throws IOException {
+    return parseXmlFile(new File(path), parseMode);
+  }
+
+  public static DataSet parseXmlFile(File inputFile) throws IOException {
+    return parseXmlFile(inputFile, ParseMode.STRICT);
+  }
+
+  public static DataSet parseXmlFile(File inputFile, ParseMode parseMode) throws IOException {
+    validateInput(inputFile);
+
+    DocumentBuilder db = getDocumentBuilder(parseMode);
+
+    ElementWrapper rootElement = null;
+    try {
+      Document document = db.parse(inputFile);
+      rootElement = new ElementWrapper(document.getDocumentElement());
+    } catch (SAXException | IOException e) {
+      throw new IOException("Failed parsing XML", e);
     }
 
+    return parseDataSet(rootElement);
+  }
+
+  /**
+   * This sets up a DocumentBuilder which can be used to parse the XML file.
+   */
+  private static DocumentBuilder getDocumentBuilder(ParseMode parseMode) {
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    dbFactory.setValidating(true);
+    dbFactory.setValidating(parseMode == ParseMode.STRICT);
 
     DocumentBuilder db;
     try {
       db = dbFactory.newDocumentBuilder();
     } catch (ParserConfigurationException e) {
-      throw new IllegalStateException(e);
+      throw new IllegalStateException("Setting up the XML Parser failed", e);
     }
 
-    if (!strict) {
+    if (parseMode == ParseMode.LENIENT) {
       // This makes it so that both published DTD versions can be read from classpath
       // Usually the parser only looks relative to the source file.
       // As per the GdPDU spec it is actually required to have the DTD file next to the index.xml file
@@ -77,18 +110,24 @@ public class GdpduIndexParser {
     }
 
     db.setErrorHandler(new LoggingErrorHandler());
+    return db;
+  }
 
-    DocumentWrapper doc;
-    try {
-      doc = new DocumentWrapper(db.parse(inputFile));
-    } catch (SAXException | IOException e) {
-      // TODO: Proper exception
-      throw new IllegalStateException(e);
+  private static void validateInput(File inputFile) {
+    if (inputFile == null) {
+      throw new IllegalArgumentException("inputFile cannot be null");
     }
+    String msg = "inputFile [" + inputFile + "]";
 
-    ElementWrapper rootElement = doc.getDocumentElement();
-
-    return parseDataSet(rootElement);
+    if (inputFile.isDirectory()) {
+      throw new IllegalArgumentException(msg + " needs to be a file, is directory");
+    }
+    if (!inputFile.exists()) {
+      throw new IllegalArgumentException(msg + " does not exist");
+    }
+    if (!inputFile.canRead()) {
+      throw new IllegalArgumentException(msg + " can't be read");
+    }
   }
 
   private static DataSet parseDataSet(ElementWrapper element) {

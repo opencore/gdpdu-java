@@ -62,7 +62,7 @@ public class GdpduDataParser {
     InvocationTargetException {
     File file = new File(indexPath);
 
-    DataSet dataSet = GdpduIndexParser.parseXmlFile(file, false);
+     DataSet dataSet = GdpduIndexParser.parseXmlFile(file, GdpduIndexParser.ParseMode.LENIENT);
     //TODO: Validate dataSet
 
     Table table = null;
@@ -107,7 +107,7 @@ public class GdpduDataParser {
 
     List<T> results = new ArrayList<>();
     int index =
-      0; // Die GdPDU scheint 1 basiert zu sein! Wir erhöhen den Index aber als erstes in der Scheife, daher beginnen wir hier bei 0
+      0; // Die GDPdU scheint 1 basiert zu sein! Wir erhöhen den Index aber als erstes in der Scheife, daher beginnen wir hier bei 0
     long from = 1;
     // TODO: to & length
     if (table.getRange() != null && table.getRange().getFrom() != null) {
