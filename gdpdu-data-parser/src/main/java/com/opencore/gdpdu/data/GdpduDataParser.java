@@ -210,7 +210,7 @@ public class GdpduDataParser {
           }
         }
       } catch (Exception e) {
-        System.out.println("Error parsing " + currentValue + " for coulmn " + currentColumn);
+        System.out.println("Error parsing " + currentValue + " for column " + currentColumn);
         e.printStackTrace();
         System.exit(1);
       }
