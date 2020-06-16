@@ -30,3 +30,8 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
+
+      - name: Analyze with SonarCloud
+        run: mvn -B verify sonar:sonar -Dsonar.projectKey=opencore_gdpdu-java -Dsonar.organization=opencore -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
