@@ -28,7 +28,7 @@ public class ElementWrapper {
   private Element nextChild;
 
   public ElementWrapper(Element element) {
-    this.element = Objects.requireNonNull(element);;
+    this.element = Objects.requireNonNull(element);
     currentChild = findNextElement(element.getFirstChild());
     nextChild = currentChild;
   }

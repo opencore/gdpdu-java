@@ -14,6 +14,7 @@ package com.opencore.gdpdu.index;
 
 import java.io.File;
 import java.io.IOException;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -77,6 +78,11 @@ public class GdpduIndexParser {
    */
   private static DocumentBuilder getDocumentBuilder(ParseMode parseMode) {
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+
+    // These two are Sonar warnings https://sonarcloud.io/organizations/opencore/rules?open=java%3AS2755&rule_key=java%3AS2755
+    dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
     dbFactory.setValidating(parseMode == ParseMode.STRICT);
 
     DocumentBuilder db;

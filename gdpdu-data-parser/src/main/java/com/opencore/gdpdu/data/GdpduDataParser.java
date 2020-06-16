@@ -162,7 +162,7 @@ public class GdpduDataParser {
     } else if (table.getFixedLength() != null) {
       LOG.trace("[{}] is FixedLength table, parsing now", tableName);
       //TODO Support fixedLength
-      return null;
+      return new ArrayList<>();
     } else {
       LOG.error("Neither VariableLength nor FixedLength found, aborting");
       throw new ParsingException("Neither VariableLength nor FixedLength found, aborting");
@@ -180,7 +180,7 @@ public class GdpduDataParser {
         throw new ParsingException(e);
       }
 
-      Map<String, Method> writeMethods = new HashMap<>();
+      Map<String, Method> newWriteMethods = new HashMap<>();
       for (PropertyDescriptor propertyDescriptor : info.getPropertyDescriptors()) {
         Field field = fieldMap.get(propertyDescriptor.getName());
         if (field == null) {
@@ -198,9 +198,9 @@ public class GdpduDataParser {
           throw new ParsingException("We only support setters with exactly one parameter");
         }
 
-        writeMethods.put(annotation.value(), propertyDescriptor.getWriteMethod());
+        newWriteMethods.put(annotation.value(), propertyDescriptor.getWriteMethod());
       }
-      this.writeMethods.put(clazz, writeMethods);
+      writeMethods.put(clazz, newWriteMethods);
     }
   }
 
