@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.validation.Validation;
-import javax.validation.Validator;
 
 import com.opencore.gdpdu.index.GdpduIndexParser;
 import com.opencore.gdpdu.index.annotations.Column;
@@ -46,7 +44,6 @@ import org.apache.commons.csv.CSVRecord;
 
 public class GdpduDataParser {
 
-  private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
   public static void main(String[] args)
     throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException,
