@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import com.opencore.gdpdu.data.GdpduDataParser;
+import com.opencore.gdpdu.data.ParsingException;
 import org.junit.jupiter.api.Test;
 
 
@@ -13,11 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class ParsingTest {
 
   @Test
-  void testParsing()
-    throws NoSuchMethodException, IntrospectionException, IOException, InstantiationException, IllegalAccessException,
-    InvocationTargetException {
-    List<TestModel> models =
-      GdpduDataParser.parse("src/test/resources/data1/index.xml", "Testdatei Nr. 1", TestModel.class);
+  void testParsing() throws ParsingException {
+    GdpduDataParser parser = new GdpduDataParser();
+
+    List<TestModel> models = parser.parseTable("src/test/resources/data1/index.xml", "Testdatei Nr. 1", TestModel.class);
 
     assertNotNull(models);
     assertEquals(2, models.size());
