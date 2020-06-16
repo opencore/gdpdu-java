@@ -12,11 +12,15 @@
  */
 package com.opencore.gdpdu.index.util;
 
+ import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+/**
+ * This class wraps a {@link Element} to provide convenience functions to parse data.
+ */
 public class ElementWrapper {
 
   private final Element element;
@@ -24,45 +28,81 @@ public class ElementWrapper {
   private Element nextChild;
 
   public ElementWrapper(Element element) {
-    this.element = element;
+    this.element = Objects.requireNonNull(element);;
     currentChild = findNextElement(element.getFirstChild());
     nextChild = currentChild;
   }
 
+  /**
+   * Processes a required text element.
+   *
+   * @param tagName expected XML tag
+   * @param consumer function to call with the text data
+   */
   public void processTextElement(String tagName, Consumer<String> consumer) {
-    if (hasNext() && next().getTagName().equals(tagName)) {
-      consumer.accept(current().getTextContent());
+    if (hasNext() && peek().getTagName().equals(tagName)) {
+      consumer.accept(next().getTextContent());
     } else {
-      throw new IllegalStateException("Expected: " + tagName + ", but received: " + current().getTagName());
+      throw new IllegalStateException("Expected [" + tagName + "], but received [" + current().getTagName() + "]");
     }
   }
 
+  /**
+   * Processes an optional text element.
+   *
+   * @param tagName expected XML tag
+   * @param consumer function to call with the text data, will not be called if the tag doesn't exist
+   */
   public void processOptionalTextElement(String tagName, Consumer<String> consumer) {
     if (hasNext() && peek().getTagName().equals(tagName)) {
       consumer.accept(next().getTextContent());
     }
   }
 
+  /**
+   * Processes a required element.
+   *
+   * @param tagName expected XML tag
+   * @param consumer function to call with the element
+   */
   public void processElement(String tagName, Consumer<ElementWrapper> consumer) {
     if (hasNext() && peek().getTagName().equals(tagName)) {
       consumer.accept(new ElementWrapper(next()));
     } else {
-      throw new IllegalStateException("Expected to find [" + tagName + "]");
+      throw new IllegalStateException("Expected [" + tagName + "], but received [" + current().getTagName() + "]");
     }
   }
 
+  /**
+   * Processes an optional element.
+   *
+   * @param tagName expected XML tag
+   * @param consumer function to call with the element, will not be called if the tag doesn't exist
+   */
   public void processOptionalElement(String tagName, Consumer<ElementWrapper> consumer) {
     if (hasNext() && peek().getTagName().equals(tagName)) {
       consumer.accept(new ElementWrapper(next()));
     }
   }
 
+  /**
+   * Processes zero or more optional elements.
+   *
+   * @param tagName expected XML tag
+   * @param consumer function to call for each element, will not be called if the tag doesn't exist
+   */
   public void processOptionalElements(String tagName, Consumer<ElementWrapper> consumer) {
     while (hasNext() && peek().getTagName().equals(tagName)) {
       consumer.accept(new ElementWrapper(next()));
     }
   }
 
+  /**
+   * Processes one or more elements.
+   *
+   * @param tagName expected XML tag
+   * @param consumer function to call for each element
+   */
   public void processOneOrMoreElements(String tagName, Consumer<ElementWrapper> consumer) {
     boolean foundOne = false;
     while (hasNext() && peek().getTagName().equals(tagName)) {
@@ -74,6 +114,12 @@ public class ElementWrapper {
     }
   }
 
+  /**
+   * Processes zero or more optional text elements.
+   *
+   * @param tagName expected XML tag
+   * @param consumer function to call for each element, will not be called if the tag doesn't exist
+   */
   public void processOptionalTextElements(String tagName, Consumer<String> consumer) {
     processOptionalElements(tagName, ele -> consumer.accept(ele.getTextContent()));
   }
@@ -82,6 +128,13 @@ public class ElementWrapper {
     return element.getTextContent();
   }
 
+  /**
+   * This moves the current Node forward to the next Element.
+   * There are other types of nodes (e.g. Comments) that we are not interested in.
+   *
+   * @param node current node to start the search from
+   * @return next Element or null if we're at the end
+   */
   private Element findNextElement(Node node) {
     while (node != null && node.getNodeType() != Node.ELEMENT_NODE) {
       node = node.getNextSibling();
@@ -102,6 +155,10 @@ public class ElementWrapper {
     return nextChild != null;
   }
 
+  /**
+   * This moves the pointer forward.
+   * We search for the next Node of type element.
+   */
   private Element next() {
     currentChild = nextChild;
     nextChild = findNextElement(currentChild.getNextSibling());

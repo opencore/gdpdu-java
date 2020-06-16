@@ -33,7 +33,7 @@ import com.opencore.gdpdu.index.models.Table;
 import com.opencore.gdpdu.index.models.Validity;
 import com.opencore.gdpdu.index.models.VariableColumn;
 import com.opencore.gdpdu.index.models.VariableLength;
- import com.opencore.gdpdu.index.util.ElementWrapper;
+import com.opencore.gdpdu.index.util.ElementWrapper;
 import com.opencore.gdpdu.index.util.LoggingErrorHandler;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -43,14 +43,6 @@ import org.xml.sax.SAXException;
  * This class can be used to parse an {@code index.xml} file into a {@link DataSet}.
  */
 public class GdpduIndexParser {
-
-  public enum ParseMode {
-    /**
-     * Strict mode does validate DTD
-     */
-    STRICT,
-    LENIENT
-  }
 
   public static DataSet parseXmlFile(String path) throws IOException {
     return parseXmlFile(path, ParseMode.STRICT);
@@ -100,9 +92,9 @@ public class GdpduIndexParser {
       // As per the GdPDU spec it is actually required to have the DTD file next to the index.xml file
       db.setEntityResolver((publicId, systemId) -> {
         if (systemId.trim().toLowerCase().endsWith("gdpdu-01-09-2004.dtd")) {
-          return new InputSource(GdpduTool.class.getClassLoader().getResourceAsStream("gdpdu-01-09-2004.dtd"));
+          return new InputSource(GdpduIndexParser.class.getClassLoader().getResourceAsStream("gdpdu-01-09-2004.dtd"));
         } else if (systemId.trim().toLowerCase().endsWith("gdpdu-01-08-2002.dtd")) {
-          return new InputSource(GdpduTool.class.getClassLoader().getResourceAsStream("gdpdu-01-08-2002.dtd"));
+          return new InputSource(GdpduIndexParser.class.getClassLoader().getResourceAsStream("gdpdu-01-08-2002.dtd"));
         } else {
           return null;
         }
@@ -173,6 +165,7 @@ public class GdpduIndexParser {
     return table;
   }
 
+  // TODO: This needs finishing
   private static FixedLength parseFixedLength(ElementWrapper element) {
     FixedLength fixedLength = new FixedLength();
     //    element.processTextElement("Name", fixedLength::setName);
@@ -269,6 +262,14 @@ public class GdpduIndexParser {
     element.processTextElement("Name", extension::setName);
     element.processTextElement("URL", extension::setUrl);
     return extension;
+  }
+
+  public enum ParseMode {
+    /**
+     * Strict mode does validate DTD
+     */
+    STRICT,
+    LENIENT
   }
 
 }
