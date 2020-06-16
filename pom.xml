@@ -32,7 +32,7 @@
     <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-    <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
+    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
   </properties>
 
   <dependencyManagement>
