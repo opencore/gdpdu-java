@@ -26,6 +26,7 @@ import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO: Make it so that index.xml doesn't need to be parsed again for each table
 /**
  * This is not thread-safe.
  */
@@ -82,6 +84,7 @@ public class GdpduDataParser {
     return t;
   }
 
+  // TODO: All of these should be made pluggable
   private static <T> void deserializeValue(Table table, T t, VariableColumn currentColumn, String currentValue, Method method) throws ParsingException {
     try {
       if (method != null) {
@@ -89,17 +92,35 @@ public class GdpduDataParser {
         if (parameterType == String.class) {
           method.invoke(t, currentValue);
         } else if (parameterType == LocalDateTime.class) {
-          LocalDateTime localDateTime = LocalDateTime.parse(currentValue, DateTimeFormatter.ISO_DATE_TIME);
+          LocalDateTime localDateTime;
+          try {
+            localDateTime = LocalDateTime.parse(currentValue, DateTimeFormatter.ISO_DATE_TIME);
+          } catch (DateTimeParseException e) {
+            throw new ParsingException(e);
+          }
           method.invoke(t, localDateTime);
-        } else if (parameterType == int.class) {
+        } else if (parameterType == int.class || parameterType == Integer.class) {
           method.invoke(t, Integer.parseInt(currentValue.replace(table.getDigitGroupingSymbol(), "")));
         } else if (parameterType == LocalDate.class) {
-          LocalDate localDate = LocalDate.parse(currentValue, DateTimeFormatter.ISO_DATE);
+          LocalDate localDate;
+          try {
+            localDate = LocalDate.parse(currentValue, DateTimeFormatter.ISO_DATE);
+          } catch (DateTimeParseException e) {
+            throw new ParsingException(e);
+          }
           method.invoke(t, localDate);
         } else if (parameterType == BigDecimal.class) {
           String replaced = currentValue.replace(table.getDigitGroupingSymbol(), "");
           replaced = replaced.replace(table.getDecimalSymbol(), ".");
           method.invoke(t, new BigDecimal(replaced));
+        } else if (parameterType == long.class || parameterType == Long.class) {
+          method.invoke(t, Long.parseLong(currentValue.replace(table.getDigitGroupingSymbol(), "")));
+        } else if (parameterType.isEnum()) {
+          @SuppressWarnings("unchecked")
+          Class<Enum<?>> enumClass = (Class<Enum<?>>) parameterType;
+          method.invoke(t, parseEnum(enumClass, currentValue));
+        } else if (parameterType == boolean.class || parameterType == Boolean.class) {
+          method.invoke(t, currentValue.equals("1"));
         } else {
           LOG.warn("Unmapped type [{}] for column [{}]", parameterType, currentColumn.getName());
           throw new ParsingException("Unmapped type [" + parameterType + "] for column [" + currentColumn.getName() + "]");
@@ -108,6 +129,15 @@ public class GdpduDataParser {
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new ParsingException(e);
     }
+  }
+
+  private static Enum<?> parseEnum(Class<Enum<?>> enumClass, String value) {
+    for (Enum<?> enumConstant : enumClass.getEnumConstants()) {
+      if (enumConstant.name().equalsIgnoreCase(value)) {
+        return enumConstant;
+      }
+    }
+    return null;
   }
 
   public <T> List<T> parseTable(String indexXml, String tableName, Class<T> clazz) throws ParsingException {
@@ -247,14 +277,26 @@ public class GdpduDataParser {
     List<T> results = new ArrayList<>();
     // GDPdU seems to be "1" based. We increment the index at the beginning of the loop so we start at 0 here
     int index = 0;
-    for (CSVRecord record : parser) {
-      index++;
-      if (index < from) {
-        continue;
-      }
 
-      // TODO: Allow continuing when something fails
-      results.add(parseRecord(record, table, clazz));
+    try {
+      for (CSVRecord record : parser) {
+        index++;
+        if (index < from) {
+          continue;
+        }
+
+        // TODO: Make this configurable
+        List<ParsingException> exceptions = new ArrayList<>();
+        try {
+          results.add(parseRecord(record, table, clazz));
+        } catch (ParsingException e) {
+          LOG.warn("Encountered error while parsing record [{}] from table [{}] into class [{}]", record, table.getName(), clazz, e);
+          exceptions.add(e);
+        }
+      }
+    } catch (IllegalStateException e) {
+      // TODO Handle
+      LOG.error("Exception parsing", e);
     }
     return results;
   }
@@ -284,7 +326,7 @@ public class GdpduDataParser {
 
       // Validation happens later
       if (currentValue == null || currentValue.isBlank()) {
-        LOG.debug("Skipping empty value for column [{}]", currentColumn.getName());
+        LOG.trace("Skipping empty value for column [{}]", currentColumn.getName());
         continue;
       }
 
