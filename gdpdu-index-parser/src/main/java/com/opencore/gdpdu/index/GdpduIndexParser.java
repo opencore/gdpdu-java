@@ -92,20 +92,21 @@ public class GdpduIndexParser {
       throw new IllegalStateException("Setting up the XML Parser failed", e);
     }
 
-    if (parseMode == ParseMode.LENIENT) {
-      // This makes it so that both published DTD versions can be read from classpath
-      // Usually the parser only looks relative to the source file.
-      // As per the GdPDU spec it is actually required to have the DTD file next to the index.xml file
-      db.setEntityResolver((publicId, systemId) -> {
-        if (systemId.trim().toLowerCase().endsWith("gdpdu-01-09-2004.dtd")) {
-          return new InputSource(GdpduIndexParser.class.getClassLoader().getResourceAsStream("gdpdu-01-09-2004.dtd"));
-        } else if (systemId.trim().toLowerCase().endsWith("gdpdu-01-08-2002.dtd")) {
-          return new InputSource(GdpduIndexParser.class.getClassLoader().getResourceAsStream("gdpdu-01-08-2002.dtd"));
-        } else {
-          return null;
-        }
-      });
-    }
+    /*
+    This makes it so that both published DTD versions can be read from classpath
+    Usually the parser only looks relative to the source file.
+    As per the GdPDU spec it is actually required to have the DTD file next to the index.xml file.
+    We actually disable reading the DTD from the filesystem due to security concerns so if it doesn't match one of these well known ones we'll fail
+     */
+    db.setEntityResolver((publicId, systemId) -> {
+      if (systemId.trim().toLowerCase().endsWith("gdpdu-01-09-2004.dtd")) {
+        return new InputSource(GdpduIndexParser.class.getClassLoader().getResourceAsStream("gdpdu-01-09-2004.dtd"));
+      } else if (systemId.trim().toLowerCase().endsWith("gdpdu-01-08-2002.dtd")) {
+        return new InputSource(GdpduIndexParser.class.getClassLoader().getResourceAsStream("gdpdu-01-08-2002.dtd"));
+      } else {
+        return null;
+      }
+    });
 
     db.setErrorHandler(new LoggingErrorHandler());
     return db;
