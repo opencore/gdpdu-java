@@ -13,10 +13,11 @@
 package com.opencore.gdpdu.index.models;
 
 import java.util.StringJoiner;
+import javax.validation.Valid;
 
 public class Validity {
 
-  private Range range;
+  @Valid private Range range;
   private String format = "DD.MM.YYYY";
 
   public Range getRange() {

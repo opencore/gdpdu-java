@@ -14,6 +14,10 @@ package com.opencore.gdpdu.index;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,14 +49,19 @@ import org.xml.sax.SAXException;
  */
 public class GdpduIndexParser {
 
+  private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
+
+  @SuppressWarnings("unused")
   public static DataSet parseXmlFile(String path) throws IOException {
     return parseXmlFile(path, ParseMode.STRICT);
   }
 
+  @SuppressWarnings("WeakerAccess")
   public static DataSet parseXmlFile(String path, ParseMode parseMode) throws IOException {
     return parseXmlFile(new File(path), parseMode);
   }
 
+  @SuppressWarnings("unused")
   public static DataSet parseXmlFile(File inputFile) throws IOException {
     return parseXmlFile(inputFile, ParseMode.STRICT);
   }
@@ -62,7 +71,7 @@ public class GdpduIndexParser {
 
     DocumentBuilder db = getDocumentBuilder(parseMode);
 
-    ElementWrapper rootElement = null;
+    ElementWrapper rootElement;
     try {
       Document document = db.parse(inputFile);
       rootElement = new ElementWrapper(document.getDocumentElement());
@@ -71,6 +80,10 @@ public class GdpduIndexParser {
     }
 
     return parseDataSet(rootElement);
+  }
+
+  public static Set<ConstraintViolation<DataSet>> validateDataSet(DataSet dataSet) {
+    return VALIDATOR.validate(dataSet);
   }
 
   /**

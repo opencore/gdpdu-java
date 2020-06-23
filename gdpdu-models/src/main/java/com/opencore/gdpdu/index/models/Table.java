@@ -13,21 +13,22 @@
 package com.opencore.gdpdu.index.models;
 
 import java.util.StringJoiner;
+import javax.validation.Valid;
 
 public class Table {
 
   private String name;
   private String url;
   private String description;
-  private Validity validity;
+  @Valid private Validity validity;
   private Encoding encoding = Encoding.ANSI;
   private String decimalSymbol = ",";
   private String digitGroupingSymbol = ".";
   private long skipNumBytes;
-  private Range range;
+  @Valid private Range range;
   private String epoch = "30";
-  private VariableLength variableLength;
-  private FixedLength fixedLength;
+  @Valid private VariableLength variableLength;
+  @Valid private FixedLength fixedLength;
 
   public String getName() {
     return name;

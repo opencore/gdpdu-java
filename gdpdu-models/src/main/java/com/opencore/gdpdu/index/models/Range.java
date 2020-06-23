@@ -19,9 +19,7 @@ public class Range {
 
   private String from;
   private String to;
-
-  @PositiveOrZero
-  private String length;
+  @PositiveOrZero private String length;
 
   /**
    * Enthält Informationen über den Startwert eines Wertebereichs.

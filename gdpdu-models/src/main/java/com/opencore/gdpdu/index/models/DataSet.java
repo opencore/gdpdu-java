@@ -15,6 +15,7 @@ package com.opencore.gdpdu.index.models;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
@@ -24,13 +25,11 @@ import javax.validation.constraints.NotEmpty;
  */
 public class DataSet {
 
-  private List<Extension> extensions = new ArrayList<>();
-  @NotBlank
-  private String version;
-  private DataSupplier dataSupplier;
+  @Valid private List<Extension> extensions = new ArrayList<>();
+  @NotBlank private String version;
+  @Valid private DataSupplier dataSupplier;
   private List<String> preCommands = new ArrayList<>();
-  @NotEmpty
-  private List<Media> media = new ArrayList<>();
+  @NotEmpty @Valid private List<Media> media = new ArrayList<>();
   private List<String> postCommands = new ArrayList<>();
 
   public List<Extension> getExtensions() {

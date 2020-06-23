@@ -27,11 +27,26 @@
   <name>GDPdU Index Parser</name>
   <description>This library can parse INDEX.XML files according to the GDPdU spec</description>
 
+  <properties>
+    <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
+    <jakarta.el.version>3.0.3</jakarta.el.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.opencore</groupId>
       <artifactId>gdpdu-models</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>jakarta.el</artifactId>
+      <version>${jakarta.el.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>${hibernate-validator.version}</version>
     </dependency>
   </dependencies>
 

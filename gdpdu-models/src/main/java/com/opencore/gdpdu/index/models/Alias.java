@@ -47,11 +47,8 @@ import javax.validation.constraints.NotBlank;
  */
 public class Alias {
 
-  @NotBlank
-  private String from;
-
-  @NotBlank
-  private String to;
+  @NotBlank private String from;
+  @NotBlank private String to;
 
   public String getFrom() {
     return from;

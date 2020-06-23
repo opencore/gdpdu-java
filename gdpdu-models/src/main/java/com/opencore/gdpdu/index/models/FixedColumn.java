@@ -15,6 +15,7 @@ package com.opencore.gdpdu.index.models;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -26,16 +27,14 @@ import com.opencore.gdpdu.index.validation.ValidFixedColumn;
 @ValidFixedColumn
 public class FixedColumn {
 
-  @NotBlank
-  private String name;
+  @NotBlank private String name;
   private String description;
   private DataType dataType;
   private AccuracyType accuracyType;
-  @PositiveOrZero
-  private long accuracy;  // Numeric
+  @PositiveOrZero private long accuracy;  // Numeric
   private String format = "DD.MM.YYYY";  // Date
-  private List<Mapping> mappings = new ArrayList<>();
-  private FixedRange fixedRange;
+  @Valid private List<Mapping> mappings = new ArrayList<>();
+  @Valid private FixedRange fixedRange;
 
   public String getName() {
     return name;

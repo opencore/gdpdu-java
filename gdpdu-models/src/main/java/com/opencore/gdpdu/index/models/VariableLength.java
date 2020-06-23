@@ -15,15 +15,16 @@ package com.opencore.gdpdu.index.models;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import javax.validation.Valid;
 
 public class VariableLength {
 
   private String columnDelimiter = ";";
   private String recordDelimiter = "\r\n";
   private String textEncapsulator = "\"";
-  private List<VariableColumn> variablePrimaryKeys = new ArrayList<>();
-  private List<VariableColumn> variableColumns = new ArrayList<>();
-  private List<ForeignKey> foreignKeys = new ArrayList<>();
+  @Valid private List<VariableColumn> variablePrimaryKeys = new ArrayList<>();
+  @Valid private List<VariableColumn> variableColumns = new ArrayList<>();
+  @Valid private List<ForeignKey> foreignKeys = new ArrayList<>();
 
   public String getColumnDelimiter() {
     return columnDelimiter;

@@ -15,14 +15,15 @@ package com.opencore.gdpdu.index.models;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import javax.validation.Valid;
 
 public class FixedLength {
 
   private Long length;
   private String recordDelimiter = "\r\n";
-  private List<FixedColumn> fixedPrimaryKeys = new ArrayList<>();
-  private List<FixedColumn> fixedColumns = new ArrayList<>();
-  private List<ForeignKey> foreignKeys = new ArrayList<>();
+  @Valid private List<FixedColumn> fixedPrimaryKeys = new ArrayList<>();
+  @Valid private List<FixedColumn> fixedColumns = new ArrayList<>();
+  @Valid private List<ForeignKey> foreignKeys = new ArrayList<>();
 
   public Long getLength() {
     return length;

@@ -15,17 +15,15 @@ package com.opencore.gdpdu.index.models;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 
 public class Media {
 
-  private String name;
-
+  @NotBlank private String name;
   private List<String> preCommands = new ArrayList<>();
-
-  private List<Table> tables = new ArrayList<>();
-
+  @Valid private List<Table> tables = new ArrayList<>();
   private List<String> postCommands = new ArrayList<>();
-
   private String acceptNotables;
 
   public String getName() {

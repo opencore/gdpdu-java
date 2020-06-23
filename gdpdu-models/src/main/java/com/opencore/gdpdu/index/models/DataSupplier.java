@@ -20,14 +20,9 @@ import javax.validation.constraints.NotBlank;
  */
 public class DataSupplier {
 
-  @NotBlank
-  private String name;
-
-  @NotBlank
-  private String location;
-
-  @NotBlank
-  private String comment;
+  @NotBlank private String name;
+  @NotBlank private String location;
+  @NotBlank private String comment;
 
   public String getName() {
     return name;

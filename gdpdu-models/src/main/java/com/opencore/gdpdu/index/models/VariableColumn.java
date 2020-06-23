@@ -15,6 +15,7 @@ package com.opencore.gdpdu.index.models;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import javax.validation.Valid;
 import javax.validation.constraints.PositiveOrZero;
 
 public class VariableColumn {
@@ -24,10 +25,9 @@ public class VariableColumn {
   private DataType dataType;
   private AccuracyType accuracyType;
   private long accuracy;  // Numeric
-  @PositiveOrZero
-  private Long maxLength; // AlphaNumeric
+  @PositiveOrZero private Long maxLength; // AlphaNumeric
   private String format = "DD.MM.YYYY";  // Date
-  private List<Mapping> mappings = new ArrayList<>();
+  @Valid private List<Mapping> mappings = new ArrayList<>();
 
   public String getName() {
     return name;

@@ -32,11 +32,8 @@ import javax.validation.constraints.NotBlank;
  */
 public class Extension {
 
-  @NotBlank
-  private String name;
-
-  @NotBlank
-  private String url;
+  @NotBlank private String name;
+  @NotBlank private String url;
 
   public String getName() {
     return name;
