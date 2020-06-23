@@ -16,11 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 
+// TODO: Validate depending on type
+// I don't really like how the types are modeled here, ideally it shouldn't be possible to construct invalid objects
 public class VariableColumn {
 
-  private String name;
+  @NotBlank private String name;
   private String description;
   private DataType dataType;
   private AccuracyType accuracyType;
