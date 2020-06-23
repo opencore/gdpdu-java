@@ -46,12 +46,12 @@ public enum Encoding {
   /**
    * Legt die Verwendung der Codepage Macintosh fest.
    */
-  Macintosh(null),
+  Macintosh(Charset.forName("x-MacRoman")),
 
   /**
    * Legt die Verwendung der Codepage IBM-PC-ASCII fest.
    */
-  OEM(null),
+  OEM(Charset.forName("IBM437")),
 
   /**
    * Legt die Verwendung der Codepage UTF16 fest.
