@@ -32,11 +32,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
 
 import com.opencore.gdpdu.index.GdpduIndexParser;
 import com.opencore.gdpdu.index.annotations.Column;
 import com.opencore.gdpdu.index.models.DataSet;
 import com.opencore.gdpdu.index.models.Media;
+import com.opencore.gdpdu.index.models.Range;
 import com.opencore.gdpdu.index.models.Table;
 import com.opencore.gdpdu.index.models.VariableColumn;
 import com.opencore.gdpdu.index.models.VariableLength;
@@ -48,7 +52,10 @@ import org.slf4j.LoggerFactory;
 
 // TODO: Make it so that index.xml doesn't need to be parsed again for each table
 /**
- * This is not thread-safe.
+ * This class can be used to read GDPdu conformant data files into Java objects.
+ * These objects have to be annotated with the {@link Column} annotation.
+ *
+ * This parser is not thread-safe.
  */
 public class GdpduDataParser {
 
@@ -85,6 +92,10 @@ public class GdpduDataParser {
   }
 
   // TODO: All of these should be made pluggable
+
+  /**
+   * This takes a value that we read from an input data file and tries to serialize it into a Java object.
+   */
   private static <T> void deserializeValue(Table table, T t, VariableColumn currentColumn, String currentValue, Method method) throws ParsingException {
     try {
       if (method != null) {
@@ -147,6 +158,7 @@ public class GdpduDataParser {
   /**
    * Parses a single {@link Table} from a specific {@code index.xml} file into a List of domain objects.
    */
+  @SuppressWarnings("WeakerAccess")
   public <T> List<T> parseTable(File indexXmlFile, String tableName, Class<T> clazz) throws ParsingException {
     Objects.requireNonNull(indexXmlFile, "'indexXmlFile' can't be null");
     Objects.requireNonNull(tableName, "'tableName' can't be null");
@@ -160,6 +172,13 @@ public class GdpduDataParser {
       throw new ParsingException(e);
     }
     LOG.debug("Successfully parsed [{}]", indexXmlFile);
+    Set<ConstraintViolation<DataSet>> constraintViolations = GdpduIndexParser.validateDataSet(dataSet);
+    if (!constraintViolations.isEmpty()) {
+      for (ConstraintViolation<DataSet> constraintViolation : constraintViolations) {
+        LOG.warn("Violation found [{}] [{}]", constraintViolation.getPropertyPath(), constraintViolation.getMessage());
+      }
+      throw new ParsingException("invalid index.xml file");
+    }
 
     //TODO: Validate that there's a setter/write method for each column in the Table object
 
@@ -192,7 +211,7 @@ public class GdpduDataParser {
     } else if (table.getFixedLength() != null) {
       LOG.trace("[{}] is FixedLength table, parsing now", tableName);
       //TODO Support fixedLength
-      return new ArrayList<>();
+      throw new UnsupportedOperationException("FixedLength not supported yet");
     } else {
       LOG.error("Neither VariableLength nor FixedLength found, aborting");
       throw new ParsingException("Neither VariableLength nor FixedLength found, aborting");
@@ -267,23 +286,29 @@ public class GdpduDataParser {
       throw new ParsingException(e);
     }
 
-    // TODO: index.xml also specifies "length" and "to" in the Range object, those need to be supported as well
-    long from = 1;
-    if (table.getRange() != null && table.getRange().getFrom() != null) {
-      from = Long.parseLong(table.getRange().getFrom());
-    }
+    LongRange range = fillDefaults(table.getRange());
+
 
     // Convert the "generic" record into the specific type
     List<T> results = new ArrayList<>();
     // GDPdU seems to be "1" based. We increment the index at the beginning of the loop so we start at 0 here
     int index = 0;
+    int count = 0;
 
     try {
       for (CSVRecord record : parser) {
         index++;
-        if (index < from) {
+        if (index < range.from) {
           continue;
         }
+        if (index > range.to) {
+          break;
+        }
+        if (count > range.length) {
+          break;
+        }
+        count++;
+
 
         // TODO: Make this configurable
         List<ParsingException> exceptions = new ArrayList<>();
@@ -299,6 +324,24 @@ public class GdpduDataParser {
       LOG.error("Exception parsing", e);
     }
     return results;
+  }
+
+  // TODO: Need to deal with values that are not valid numbers
+  private LongRange fillDefaults(Range range) {
+    LongRange longRange = new LongRange();
+    if (range == null) {
+      return longRange;
+    }
+    if (range.getFrom() != null && !range.getFrom().isBlank()) {
+        longRange.from = Long.parseLong(range.getFrom());
+    }
+    if (range.getTo() != null && !range.getTo().isBlank()) {
+        longRange.to = Long.parseLong(range.getTo());
+    }
+    if (range.getLength() != null && !range.getLength().isBlank()) {
+        longRange.to = Long.parseLong(range.getLength());
+    }
+    return longRange;
   }
 
   // TODO: This is specific to variable length stuff now, need to see if this can be made generic enough to support fixed length as well
@@ -336,6 +379,12 @@ public class GdpduDataParser {
     }
 
     return t;
+  }
+
+  private static class LongRange {
+    long from = 1;
+    long to = Long.MAX_VALUE;
+    long length = Long.MAX_VALUE;
   }
 
 }
