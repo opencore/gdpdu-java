@@ -1,11 +1,12 @@
 import com.opencore.gdpdu.index.annotations.Column;
+import com.opencore.gdpdu.index.models.DataType;
 
 public class TestModel {
 
-  @Column("foo")
+  @Column(value = "foo", type = DataType.AlphaNumeric)
   private String foo;
 
-  @Column("bar")
+  @Column(value = "bar", type = DataType.Numeric)
   private int bar;
 
   public String getFoo() {

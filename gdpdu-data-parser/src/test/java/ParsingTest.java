@@ -1,10 +1,7 @@
-import java.beans.IntrospectionException;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import com.opencore.gdpdu.common.exceptions.ParsingException;
 import com.opencore.gdpdu.data.GdpduDataParser;
-import com.opencore.gdpdu.data.ParsingException;
 import org.junit.jupiter.api.Test;
 
 

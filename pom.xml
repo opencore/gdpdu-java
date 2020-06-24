@@ -11,6 +11,7 @@
   <name>GDPdU Parent</name>
 
   <modules>
+    <module>gdpdu-common</module>
     <module>gdpdu-models</module>
     <module>gdpdu-index-parser</module>
     <module>gdpdu-data-parser</module>

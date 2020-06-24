@@ -35,6 +35,11 @@
   <dependencies>
     <dependency>
       <groupId>com.opencore</groupId>
+      <artifactId>gdpdu-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opencore</groupId>
       <artifactId>gdpdu-models</artifactId>
       <version>${project.version}</version>
     </dependency>

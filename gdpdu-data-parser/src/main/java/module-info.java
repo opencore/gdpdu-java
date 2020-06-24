@@ -1,5 +1,6 @@
 module com.opencore.gdpdu.data {
   requires commons.csv;
+  requires com.opencore.gdpdu.common;
   requires com.opencore.gdpdu.index;
   requires com.opencore.gdpdu.models;
   requires java.desktop;

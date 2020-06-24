@@ -1,4 +1,4 @@
-package com.opencore.gdpdu.data;
+package com.opencore.gdpdu.common.exceptions;
 
 public class ParsingException extends Exception {
 

@@ -12,13 +12,8 @@
  */
 package com.opencore.gdpdu.data;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -28,15 +23,17 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
 import javax.validation.ConstraintViolation;
 
+import com.opencore.gdpdu.common.exceptions.ParsingException;
+import com.opencore.gdpdu.common.util.ClassRegistry;
+import com.opencore.gdpdu.common.util.ColumnInfo;
 import com.opencore.gdpdu.index.GdpduIndexParser;
+import com.opencore.gdpdu.index.GdpduIndexValidator;
 import com.opencore.gdpdu.index.annotations.Column;
 import com.opencore.gdpdu.index.models.DataSet;
 import com.opencore.gdpdu.index.models.Media;
@@ -61,26 +58,6 @@ public class GdpduDataParser {
 
   private static final Logger LOG = LoggerFactory.getLogger(GdpduDataParser.class);
 
-  /**
-   * This maps (for each model class) from field names to the setter method for each field that is annotated with the "Column" annotation.
-   */
-  private final Map<Class<?>, Map<String, Method>> writeMethods = new HashMap<>();
-
-  /**
-   * This method returns all fields (private as well as public) for a Class including its superclasses.
-   */
-  private static Map<String, Field> getAllFields(Class<?> type) {
-    Objects.requireNonNull(type, "'type' can't be null");
-
-    Map<String, Field> fieldMap = new HashMap<>();
-    for (Class<?> c = type; c != null; c = c.getSuperclass()) {
-      for (Field declaredField : c.getDeclaredFields()) {
-        fieldMap.put(declaredField.getName(), declaredField);
-      }
-    }
-    return fieldMap;
-  }
-
   private static <T> T newInstance(Class<T> clazz) throws ParsingException {
     T t;
     try {
@@ -99,7 +76,7 @@ public class GdpduDataParser {
   private static <T> void deserializeValue(Table table, T t, VariableColumn currentColumn, String currentValue, Method method) throws ParsingException {
     try {
       if (method != null) {
-        Class<?> parameterType = method.getParameterTypes()[0]; // In initClassMap we checked that every write method has exactly one parameter
+        Class<?> parameterType = method.getParameterTypes()[0]; // In the ClassRegistry we checked that every write method has exactly one parameter
         if (parameterType == String.class) {
           method.invoke(t, currentValue);
         } else if (parameterType == LocalDateTime.class) {
@@ -164,23 +141,8 @@ public class GdpduDataParser {
     Objects.requireNonNull(tableName, "'tableName' can't be null");
     Objects.requireNonNull(clazz, "'clazz' can't be null");
 
-    LOG.trace("Beginning to parse [{}]", indexXmlFile);
-    DataSet dataSet;
-    try {
-      dataSet = GdpduIndexParser.parseXmlFile(indexXmlFile, GdpduIndexParser.ParseMode.LENIENT);
-    } catch (IOException e) {
-      throw new ParsingException(e);
-    }
-    LOG.debug("Successfully parsed [{}]", indexXmlFile);
-    Set<ConstraintViolation<DataSet>> constraintViolations = GdpduIndexParser.validateDataSet(dataSet);
-    if (!constraintViolations.isEmpty()) {
-      for (ConstraintViolation<DataSet> constraintViolation : constraintViolations) {
-        LOG.warn("Violation found [{}] [{}]", constraintViolation.getPropertyPath(), constraintViolation.getMessage());
-      }
-      throw new ParsingException("invalid index.xml file");
-    }
-
-    //TODO: Validate that there's a setter/write method for each column in the Table object
+    DataSet dataSet = parseIndexXml(indexXmlFile);
+    validateDataSet(dataSet);
 
     // Try to find the table in our index.xml file
     Table table = null;
@@ -194,13 +156,26 @@ public class GdpduDataParser {
         }
       }
     }
-
     if (table == null) {
       LOG.error("Table [{}] could not be found, aborting", tableName);
       throw new ParsingException("Table could not be found, aborting");
     }
 
-    initClassMap(clazz);
+    ClassRegistry.registerClass(clazz);
+
+    // TODO: Make this a choice or a separate step alltogether, this method starts to do a lot of different things
+    //validateClass(clazz, table);
+    List<String> errors = GdpduIndexValidator.validateTableAgainstClass(clazz, table);
+    if (!errors.isEmpty()) {
+      for (String error : errors) {
+        LOG.warn(error);
+      }
+      // TODO: Make this more informative
+      throw new ParsingException("index.xml does not match clazz");
+    }
+
+    //TODO: Validate that there's a setter/write method for each column in the Table object
+
 
     // All files need to be relative to the index.xml file
     File directory = indexXmlFile.getAbsoluteFile().getParentFile();
@@ -213,44 +188,30 @@ public class GdpduDataParser {
       //TODO Support fixedLength
       throw new UnsupportedOperationException("FixedLength not supported yet");
     } else {
-      LOG.error("Neither VariableLength nor FixedLength found, aborting");
       throw new ParsingException("Neither VariableLength nor FixedLength found, aborting");
     }
   }
 
-  private <T> void initClassMap(Class<T> clazz) throws ParsingException {
-    Map<String, Field> fieldMap = getAllFields(clazz);
-
-    if (!writeMethods.containsKey(clazz)) {
-      BeanInfo info;
-      try {
-        info = Introspector.getBeanInfo(clazz);
-      } catch (IntrospectionException e) {
-        throw new ParsingException(e);
+  private void validateDataSet(DataSet dataSet) throws ParsingException {
+    Set<ConstraintViolation<DataSet>> constraintViolations = GdpduIndexValidator.validateDataSet(dataSet);
+    if (!constraintViolations.isEmpty()) {
+      for (ConstraintViolation<DataSet> constraintViolation : constraintViolations) {
+        LOG.warn("Violation found [{}] [{}]", constraintViolation.getPropertyPath(), constraintViolation.getMessage());
       }
-
-      Map<String, Method> newWriteMethods = new HashMap<>();
-      for (PropertyDescriptor propertyDescriptor : info.getPropertyDescriptors()) {
-        Field field = fieldMap.get(propertyDescriptor.getName());
-        if (field == null) {
-          continue;
-        }
-
-        // Get every field that's annotated by the Column annotation
-        Column annotation = field.getAnnotation(Column.class);
-        if (annotation == null) {
-          continue;
-        }
-
-        Method writeMethod = propertyDescriptor.getWriteMethod();
-        if (writeMethod.getParameterCount() != 1) {
-          throw new ParsingException("We only support setters with exactly one parameter");
-        }
-
-        newWriteMethods.put(annotation.value(), propertyDescriptor.getWriteMethod());
-      }
-      writeMethods.put(clazz, newWriteMethods);
+      throw new ParsingException("invalid index.xml file");
     }
+  }
+
+  private DataSet parseIndexXml(File indexXmlFile) throws ParsingException {
+    LOG.trace("Beginning to parse [{}]", indexXmlFile);
+    DataSet dataSet;
+    try {
+      dataSet = GdpduIndexParser.parseXmlFile(indexXmlFile, GdpduIndexParser.ParseMode.LENIENT);
+    } catch (IOException e) {
+      throw new ParsingException(e);
+    }
+    LOG.debug("Successfully parsed [{}]", indexXmlFile);
+    return dataSet;
   }
 
   /**
@@ -291,11 +252,10 @@ public class GdpduDataParser {
 
     // Convert the "generic" record into the specific type
     List<T> results = new ArrayList<>();
-    // GDPdU seems to be "1" based. We increment the index at the beginning of the loop so we start at 0 here
-    int index = 0;
-    int count = 0;
-
     try {
+      // GDPdU seems to be "1" based. We increment the index at the beginning of the loop so we start at 0 here
+      int index = 0;
+      int count = 0;
       for (CSVRecord record : parser) {
         index++;
         if (index < range.from) {
@@ -350,7 +310,7 @@ public class GdpduDataParser {
     Objects.requireNonNull(table, "'table' can't be null");
     Objects.requireNonNull(clazz, "'clazz' can't be null");
 
-    Map<String, Method> writeMethods = this.writeMethods.get(clazz);
+    Map<String, ColumnInfo> writeMethods = ClassRegistry.getClassInformation(clazz);
 
     List<VariableColumn> columns = new ArrayList<>();
     columns.addAll(table.getVariableLength().getVariablePrimaryKeys());
@@ -374,7 +334,7 @@ public class GdpduDataParser {
       }
 
       // Here we deserialize the Strings into strongly typed values depending on their type
-      Method method = writeMethods.get(currentColumn.getName());
+      Method method = writeMethods.get(currentColumn.getName()).setter;
       deserializeValue(table, t, currentColumn, currentValue, method);
     }
 

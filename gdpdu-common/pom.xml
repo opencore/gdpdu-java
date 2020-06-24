@@ -18,34 +18,15 @@
     <version>0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>gdpdu-data-parser</artifactId>
+  <artifactId>gdpdu-common</artifactId>
 
-  <name>GDPdU Data Parser</name>
-
-  <properties>
-    <commons-csv.version>1.8</commons-csv.version>
-  </properties>
+  <name>GDPdU Common</name>
 
   <dependencies>
     <dependency>
       <groupId>com.opencore</groupId>
-      <artifactId>gdpdu-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.opencore</groupId>
       <artifactId>gdpdu-models</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.opencore</groupId>
-      <artifactId>gdpdu-index-parser</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-csv</artifactId>
-      <version>${commons-csv.version}</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
