@@ -135,7 +135,7 @@ public class ElementWrapper {
    * @param node current node to start the search from
    * @return next Element or null if we're at the end
    */
-  private Element findNextElement(Node node) {
+  private static Element findNextElement(Node node) {
     while (node != null && node.getNodeType() != Node.ELEMENT_NODE) {
       node = node.getNextSibling();
     }
