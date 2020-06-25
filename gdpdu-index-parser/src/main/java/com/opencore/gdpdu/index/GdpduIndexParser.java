@@ -14,6 +14,7 @@ package com.opencore.gdpdu.index;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -106,11 +107,11 @@ public class GdpduIndexParser {
     As per the GdPDU spec it is actually required to have the DTD file next to the index.xml file.
     We actually disable reading the DTD from the filesystem due to security concerns so if it doesn't match one of these well known ones we'll fail
      */
-    db.setEntityResolver((publicId, systemId) -> {
-      if (systemId.trim().toLowerCase().endsWith("gdpdu-01-09-2004.dtd")) {
-        return new InputSource(GdpduIndexParser.class.getClassLoader().getResourceAsStream("gdpdu-01-09-2004.dtd"));
-      } else if (systemId.trim().toLowerCase().endsWith("gdpdu-01-08-2002.dtd")) {
-        return new InputSource(GdpduIndexParser.class.getClassLoader().getResourceAsStream("gdpdu-01-08-2002.dtd"));
+    db.setEntityResolver((String publicId, String systemId) -> {
+      if (systemId.trim().toLowerCase(Locale.ROOT).endsWith("gdpdu-01-09-2004.dtd")) {
+        return new InputSource(Thread.currentThread().getContextClassLoader().getResourceAsStream("gdpdu-01-09-2004.dtd"));
+      } else if (systemId.trim().toLowerCase(Locale.ROOT).endsWith("gdpdu-01-08-2002.dtd")) {
+        return new InputSource(Thread.currentThread().getContextClassLoader().getResourceAsStream("gdpdu-01-08-2002.dtd"));
       } else {
         return null;
       }
@@ -139,21 +140,21 @@ public class GdpduIndexParser {
 
   private static DataSet parseDataSet(ElementWrapper element) {
     DataSet dataSet = new DataSet();
-    element.processOptionalElements("Extension", ele -> dataSet.getExtensions().add(parseExtension(ele)));
+    element.processOptionalElements("Extension", (ElementWrapper ele) -> dataSet.getExtensions().add(parseExtension(ele)));
     element.processTextElement("Version", dataSet::setVersion);
-    element.processOptionalElement("DataSupplier", ele -> dataSet.setDataSupplier(parseDataSupplier(ele)));
-    element.processOptionalTextElements("Command", ele -> dataSet.getPreCommands().add(ele));
-    element.processOneOrMoreElements("Media", ele -> dataSet.getMedia().add(parseMedia(ele)));
-    element.processOptionalTextElements("Command", ele -> dataSet.getPostCommands().add(ele));
+    element.processOptionalElement("DataSupplier", (ElementWrapper ele) -> dataSet.setDataSupplier(parseDataSupplier(ele)));
+    element.processOptionalTextElements("Command", (String ele) -> dataSet.getPreCommands().add(ele));
+    element.processOneOrMoreElements("Media", (ElementWrapper ele) -> dataSet.getMedia().add(parseMedia(ele)));
+    element.processOptionalTextElements("Command", (String ele) -> dataSet.getPostCommands().add(ele));
     return dataSet;
   }
 
   private static Media parseMedia(ElementWrapper element) {
     Media media = new Media();
     element.processTextElement("Name", media::setName);
-    element.processOptionalTextElements("Command", ele -> media.getPreCommands().add(ele));
-    element.processOptionalElements("Table", ele -> media.getTables().add(parseTable(ele)));
-    element.processOptionalTextElements("Command", ele -> media.getPostCommands().add(ele));
+    element.processOptionalTextElements("Command", (String ele) -> media.getPreCommands().add(ele));
+    element.processOptionalElements("Table", (ElementWrapper ele) -> media.getTables().add(parseTable(ele)));
+    element.processOptionalTextElements("Command", (String ele) -> media.getPostCommands().add(ele));
     element.processOptionalTextElement("AcceptNoTables", media::setAcceptNotables);
     return media;
   }
@@ -163,31 +164,31 @@ public class GdpduIndexParser {
     element.processTextElement("URL", table::setUrl);
     element.processOptionalTextElement("Name", table::setName);
     element.processOptionalTextElement("Description", table::setDescription);
-    element.processOptionalElement("Validity", ele -> table.setValidity(parseValidity(ele)));
-    element.processOptionalElement("ANSI", ele -> table.setEncoding(Encoding.ANSI));
-    element.processOptionalElement("Macintosh", ele -> table.setEncoding(Encoding.Macintosh));
-    element.processOptionalElement("OEM", ele -> table.setEncoding(Encoding.OEM));
-    element.processOptionalElement("UTF16", ele -> table.setEncoding(Encoding.UTF16));
-    element.processOptionalElement("UTF7", ele -> table.setEncoding(Encoding.UTF7));
-    element.processOptionalElement("UTF8", ele -> table.setEncoding(Encoding.UTF8));
+    element.processOptionalElement("Validity", (ElementWrapper ele) -> table.setValidity(parseValidity(ele)));
+    element.processOptionalElement("ANSI", (ElementWrapper ele) -> table.setEncoding(Encoding.ANSI));
+    element.processOptionalElement("Macintosh", (ElementWrapper ele) -> table.setEncoding(Encoding.Macintosh));
+    element.processOptionalElement("OEM", (ElementWrapper ele) -> table.setEncoding(Encoding.OEM));
+    element.processOptionalElement("UTF16", (ElementWrapper ele) -> table.setEncoding(Encoding.UTF16));
+    element.processOptionalElement("UTF7", (ElementWrapper ele) -> table.setEncoding(Encoding.UTF7));
+    element.processOptionalElement("UTF8", (ElementWrapper ele) -> table.setEncoding(Encoding.UTF8));
     element.processOptionalTextElement("DecimalSymbol", table::setDecimalSymbol);
     element.processOptionalTextElement("DigitGroupingSymbol", table::setDigitGroupingSymbol);
-    element.processOptionalTextElement("SkipNumBytes", ele -> table.setSkipNumBytes(Long.parseLong(ele)));
-    element.processOptionalElement("Range", ele -> table.setRange(parseRange(ele)));
+    element.processOptionalTextElement("SkipNumBytes", (String ele) -> table.setSkipNumBytes(Long.parseLong(ele)));
+    element.processOptionalElement("Range", (ElementWrapper ele) -> table.setRange(parseRange(ele)));
     element.processOptionalTextElement("Epoch", table::setEpoch);
-    element.processOptionalElement("VariableLength", ele -> table.setVariableLength(parseVariableLength(ele)));
-    element.processOptionalElement("FixedLength", ele -> table.setFixedLength(parseFixedLength(ele)));
+    element.processOptionalElement("VariableLength", (ElementWrapper ele) -> table.setVariableLength(parseVariableLength(ele)));
+    element.processOptionalElement("FixedLength", (ElementWrapper ele) -> table.setFixedLength(parseFixedLength(ele)));
     return table;
   }
 
   private static FixedLength parseFixedLength(ElementWrapper element) {
     FixedLength fixedLength = new FixedLength();
-    element.processOptionalTextElement("Length", ele -> fixedLength.setLength(Long.parseLong(ele)));
+    element.processOptionalTextElement("Length", (String ele) -> fixedLength.setLength(Long.parseLong(ele)));
     element.processOptionalTextElement("RecordDelimiter", fixedLength::setRecordDelimiter);
-    element.processOptionalElements("FixedPrimaryKey", ele -> fixedLength.getFixedPrimaryKeys().add(parseFixedColumn(ele)));
+    element.processOptionalElements("FixedPrimaryKey", (ElementWrapper ele) -> fixedLength.getFixedPrimaryKeys().add(parseFixedColumn(ele)));
     element.processOptionalElements("FixedColumn",
-      ele -> fixedLength.getFixedColumns().add(parseFixedColumn(ele)));
-    element.processOptionalElements("ForeignKey", ele -> fixedLength.getForeignKeys().add(parseForeignKey(ele)));
+      (ElementWrapper ele) -> fixedLength.getFixedColumns().add(parseFixedColumn(ele)));
+    element.processOptionalElements("ForeignKey", (ElementWrapper ele) -> fixedLength.getForeignKeys().add(parseForeignKey(ele)));
 
     return fixedLength;
   }
@@ -198,21 +199,21 @@ public class GdpduIndexParser {
     element.processOptionalTextElement("RecordDelimiter", variableLength::setRecordDelimiter);
     element.processOptionalTextElement("TextEncapsulator", variableLength::setTextEncapsulator);
     element.processOptionalElements("VariablePrimaryKey",
-      ele -> variableLength.getVariablePrimaryKeys().add(parseVariableColumn(ele)));
+      (ElementWrapper ele) -> variableLength.getVariablePrimaryKeys().add(parseVariableColumn(ele)));
     element.processOptionalElements("VariableColumn",
-      ele -> variableLength.getVariableColumns().add(parseVariableColumn(ele)));
-    element.processOptionalElements("ForeignKey", ele -> variableLength.getForeignKeys().add(parseForeignKey(ele)));
+      (ElementWrapper ele) -> variableLength.getVariableColumns().add(parseVariableColumn(ele)));
+    element.processOptionalElements("ForeignKey", (ElementWrapper ele) -> variableLength.getForeignKeys().add(parseForeignKey(ele)));
     return variableLength;
   }
 
   private static ForeignKey parseForeignKey(ElementWrapper element) {
     ForeignKey foreignKey = new ForeignKey();
-    element.processOptionalTextElements("Name", ele -> foreignKey.getNames().add(ele));
+    element.processOptionalTextElements("Name", (String ele) -> foreignKey.getNames().add(ele));
     element.processTextElement("References", foreignKey::setReferences);
-    element.processOptionalElements("Alias", ele -> {
+    element.processOptionalElements("Alias", (ElementWrapper ele) -> {
       String[] entry = new String[2];
-      element.processTextElement("From", ele2 -> entry[0] = ele2);
-      element.processTextElement("To", ele2 -> entry[1] = ele2);
+      element.processTextElement("From", (String ele2) -> entry[0] = ele2);
+      element.processTextElement("To", (String ele2) -> entry[1] = ele2);
       foreignKey.getAliases().put(entry[0], entry[1]);
     });
     return foreignKey;
@@ -223,28 +224,28 @@ public class GdpduIndexParser {
     element.processTextElement("Name", fixedColumn::setName);
     element.processOptionalTextElement("Description", fixedColumn::setDescription);
 
-    element.processOptionalElement("Numeric", ele -> {
+    element.processOptionalElement("Numeric", (ElementWrapper ele) -> {
       fixedColumn.setDataType(DataType.Numeric);
-      element.processOptionalTextElement("ImpliedAccuracy", ele2 -> {
+      element.processOptionalTextElement("ImpliedAccuracy", (String ele2) -> {
         fixedColumn.setAccuracyType(AccuracyType.ImpliedAccuracy);
         fixedColumn.setAccuracy(Long.parseLong(ele2));
       });
-      element.processOptionalTextElement("Accuracy", ele2 -> {
+      element.processOptionalTextElement("Accuracy", (String ele2) -> {
         fixedColumn.setAccuracyType(AccuracyType.Accuracy);
         fixedColumn.setAccuracy(Long.parseLong(ele2));
       });
     });
 
-    element.processOptionalElement("AlphaNumeric", ele -> fixedColumn.setDataType(DataType.AlphaNumeric));
+    element.processOptionalElement("AlphaNumeric", (ElementWrapper ele) -> fixedColumn.setDataType(DataType.AlphaNumeric));
 
-    element.processOptionalElement("Date", ele -> {
+    element.processOptionalElement("Date", (ElementWrapper ele) -> {
       fixedColumn.setDataType(DataType.Date);
       element.processOptionalTextElement("Format", fixedColumn::setFormat);
     });
 
-    element.processOptionalElements("Map", ele -> fixedColumn.getMappings().add(parseMapping(ele)));
+    element.processOptionalElements("Map", (ElementWrapper ele) -> fixedColumn.getMappings().add(parseMapping(ele)));
 
-    element.processElement("FixedRange", ele -> fixedColumn.setFixedRange(parseRange(ele)));
+    element.processElement("FixedRange", (ElementWrapper ele) -> fixedColumn.setFixedRange(parseRange(ele)));
 
     return fixedColumn;
   }
@@ -255,27 +256,27 @@ public class GdpduIndexParser {
     element.processTextElement("Name", variableColumn::setName);
     element.processOptionalTextElement("Description", variableColumn::setDescription);
 
-    element.processOptionalElement("Numeric", ele -> {
+    element.processOptionalElement("Numeric", (ElementWrapper ele) -> {
       variableColumn.setDataType(DataType.Numeric);
-      element.processOptionalTextElement("ImpliedAccuracy", ele2 -> {
+      element.processOptionalTextElement("ImpliedAccuracy", (String ele2) -> {
         variableColumn.setAccuracyType(AccuracyType.ImpliedAccuracy);
         variableColumn.setAccuracy(Long.parseLong(ele2));
       });
-      element.processOptionalTextElement("Accuracy", ele2 -> {
+      element.processOptionalTextElement("Accuracy", (String ele2) -> {
         variableColumn.setAccuracyType(AccuracyType.Accuracy);
         variableColumn.setAccuracy(Long.parseLong(ele2));
       });
     });
 
-    element.processOptionalElement("AlphaNumeric", ele -> variableColumn.setDataType(DataType.AlphaNumeric));
-    element.processOptionalTextElement("MaxLength", ele -> variableColumn.setMaxLength(Long.valueOf(ele)));
+    element.processOptionalElement("AlphaNumeric", (ElementWrapper ele) -> variableColumn.setDataType(DataType.AlphaNumeric));
+    element.processOptionalTextElement("MaxLength", (String ele) -> variableColumn.setMaxLength(Long.valueOf(ele)));
 
-    element.processOptionalElement("Date", ele -> {
+    element.processOptionalElement("Date", (ElementWrapper ele) -> {
       variableColumn.setDataType(DataType.Date);
       element.processOptionalTextElement("Format", variableColumn::setFormat);
     });
 
-    element.processOptionalElements("Map", ele -> variableColumn.getMappings().add(parseMapping(ele)));
+    element.processOptionalElements("Map", (ElementWrapper ele) -> variableColumn.getMappings().add(parseMapping(ele)));
     return variableColumn;
   }
 
@@ -289,7 +290,7 @@ public class GdpduIndexParser {
 
   private static Validity parseValidity(ElementWrapper element) {
     Validity validity = new Validity();
-    element.processElement("Range", ele -> validity.setRange(parseRange(ele)));
+    element.processElement("Range", (ElementWrapper ele) -> validity.setRange(parseRange(ele)));
     element.processOptionalTextElement("Format", validity::setFormat);
     return validity;
   }
@@ -315,6 +316,9 @@ public class GdpduIndexParser {
     element.processTextElement("Name", extension::setName);
     element.processTextElement("URL", extension::setUrl);
     return extension;
+  }
+
+  private GdpduIndexParser() {
   }
 
   public enum ParseMode {
