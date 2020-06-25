@@ -206,7 +206,7 @@ public class GdpduDataParser {
     LOG.trace("Beginning to parse [{}]", indexXmlFile);
     DataSet dataSet;
     try {
-      dataSet = GdpduIndexParser.parseXmlFile(indexXmlFile, GdpduIndexParser.ParseMode.LENIENT);
+      dataSet = GdpduIndexParser.parseXmlFile(indexXmlFile);
     } catch (IOException e) {
       throw new ParsingException(e);
     }

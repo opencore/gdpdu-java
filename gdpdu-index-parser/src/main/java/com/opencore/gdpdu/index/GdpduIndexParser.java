@@ -13,8 +13,11 @@
 package com.opencore.gdpdu.index;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
+import java.util.Objects;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -54,29 +57,26 @@ public final class GdpduIndexParser {
   private GdpduIndexParser() {
   }
 
-  @SuppressWarnings("unused")
   public static DataSet parseXmlFile(String path) throws IOException {
-    return parseXmlFile(path, ParseMode.STRICT);
+    return parseXmlFile(new File(path));
   }
 
-  @SuppressWarnings("WeakerAccess")
-  public static DataSet parseXmlFile(String path, ParseMode parseMode) throws IOException {
-    return parseXmlFile(new File(path), parseMode);
-  }
-
-  @SuppressWarnings("unused")
   public static DataSet parseXmlFile(File inputFile) throws IOException {
-    return parseXmlFile(inputFile, ParseMode.STRICT);
+    validateInput(inputFile);
+    return parseXmlFile(new FileInputStream(inputFile));
   }
 
-  public static DataSet parseXmlFile(File inputFile, ParseMode parseMode) throws IOException {
-    validateInput(inputFile);
-
-    DocumentBuilder db = getDocumentBuilder(parseMode);
+  /**
+   * This tries to parse a file according to the GDPdU/GoBD standard.
+   * It does not do any validation apart from schema validation according to the DTD.
+   */
+  public static DataSet parseXmlFile(InputStream inputStream) throws IOException {
+    Objects.requireNonNull(inputStream, "'inputStream' can't be null");
+    DocumentBuilder db = getDocumentBuilder();
 
     ElementWrapper rootElement;
     try {
-      Document document = db.parse(inputFile);
+      Document document = db.parse(inputStream);
       rootElement = new ElementWrapper(document.getDocumentElement());
     } catch (SAXException | IOException e) {
       throw new IOException("Failed parsing XML", e);
@@ -88,14 +88,14 @@ public final class GdpduIndexParser {
   /**
    * This sets up a DocumentBuilder which can be used to parse the XML file.
    */
-  private static DocumentBuilder getDocumentBuilder(ParseMode parseMode) {
+  private static DocumentBuilder getDocumentBuilder() {
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 
     // These two are Sonar warnings https://sonarcloud.io/organizations/opencore/rules?open=java%3AS2755&rule_key=java%3AS2755
     dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
     dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
-    dbFactory.setValidating(parseMode == ParseMode.STRICT);
+    dbFactory.setValidating(true);
 
     DocumentBuilder db;
     try {
@@ -125,9 +125,8 @@ public final class GdpduIndexParser {
   }
 
   private static void validateInput(File inputFile) {
-    if (inputFile == null) {
-      throw new IllegalArgumentException("inputFile cannot be null");
-    }
+    Objects.requireNonNull(inputFile, "'inputFile' can't be null");
+
     String msg = "inputFile [" + inputFile + "]";
 
     if (inputFile.isDirectory()) {
