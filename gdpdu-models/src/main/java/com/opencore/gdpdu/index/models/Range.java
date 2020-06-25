@@ -15,6 +15,8 @@ package com.opencore.gdpdu.index.models;
 import java.util.StringJoiner;
 import javax.validation.constraints.PositiveOrZero;
 
+// TODO: This needs proper validation
+
 public class Range {
 
   private String from;

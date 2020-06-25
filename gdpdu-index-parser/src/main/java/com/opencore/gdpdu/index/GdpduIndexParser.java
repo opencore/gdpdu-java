@@ -25,6 +25,7 @@ import com.opencore.gdpdu.index.models.DataSupplier;
 import com.opencore.gdpdu.index.models.DataType;
 import com.opencore.gdpdu.index.models.Encoding;
 import com.opencore.gdpdu.index.models.Extension;
+import com.opencore.gdpdu.index.models.FixedColumn;
 import com.opencore.gdpdu.index.models.FixedLength;
 import com.opencore.gdpdu.index.models.ForeignKey;
 import com.opencore.gdpdu.index.models.Mapping;
@@ -42,6 +43,10 @@ import org.xml.sax.SAXException;
 
 /**
  * This class can be used to parse an {@code index.xml} file into a {@link DataSet}.
+ * <p/>
+ * Implementation note: This does not use a more sophisticated (JAXB or otherwise) XML parser on purpose.
+ * First, this does not require any dependencies and second the Commands for Media are problematic to map because they appear twice. Once before the tables and once after.
+ * I did not find a way to map this correctly into two distinct lists using JAXB.
  */
 public class GdpduIndexParser {
 
@@ -175,11 +180,15 @@ public class GdpduIndexParser {
     return table;
   }
 
-  // TODO: This needs finishing
   private static FixedLength parseFixedLength(ElementWrapper element) {
     FixedLength fixedLength = new FixedLength();
-    //    element.processTextElement("Name", fixedLength::setName);
-    //    element.processOptionalTextElement("Description", fixedLength::setDescription);
+    element.processOptionalTextElement("Length", ele -> fixedLength.setLength(Long.parseLong(ele)));
+    element.processOptionalTextElement("RecordDelimiter", fixedLength::setRecordDelimiter);
+    element.processOptionalElements("FixedPrimaryKey", ele -> fixedLength.getFixedPrimaryKeys().add(parseFixedColumn(ele)));
+    element.processOptionalElements("FixedColumn",
+      ele -> fixedLength.getFixedColumns().add(parseFixedColumn(ele)));
+    element.processOptionalElements("ForeignKey", ele -> fixedLength.getForeignKeys().add(parseForeignKey(ele)));
+
     return fixedLength;
   }
 
@@ -209,6 +218,38 @@ public class GdpduIndexParser {
     return foreignKey;
   }
 
+  private static FixedColumn parseFixedColumn(ElementWrapper element) {
+    FixedColumn fixedColumn = new FixedColumn();
+    element.processTextElement("Name", fixedColumn::setName);
+    element.processOptionalTextElement("Description", fixedColumn::setDescription);
+
+    element.processOptionalElement("Numeric", ele -> {
+      fixedColumn.setDataType(DataType.Numeric);
+      element.processOptionalTextElement("ImpliedAccuracy", ele2 -> {
+        fixedColumn.setAccuracyType(AccuracyType.ImpliedAccuracy);
+        fixedColumn.setAccuracy(Long.parseLong(ele2));
+      });
+      element.processOptionalTextElement("Accuracy", ele2 -> {
+        fixedColumn.setAccuracyType(AccuracyType.Accuracy);
+        fixedColumn.setAccuracy(Long.parseLong(ele2));
+      });
+    });
+
+    element.processOptionalElement("AlphaNumeric", ele -> fixedColumn.setDataType(DataType.AlphaNumeric));
+
+    element.processOptionalElement("Date", ele -> {
+      fixedColumn.setDataType(DataType.Date);
+      element.processOptionalTextElement("Format", fixedColumn::setFormat);
+    });
+
+    element.processOptionalElements("Map", ele -> fixedColumn.getMappings().add(parseMapping(ele)));
+
+    element.processElement("FixedRange", ele -> fixedColumn.setFixedRange(parseRange(ele)));
+
+    return fixedColumn;
+  }
+
+
   private static VariableColumn parseVariableColumn(ElementWrapper element) {
     VariableColumn variableColumn = new VariableColumn();
     element.processTextElement("Name", variableColumn::setName);
@@ -225,8 +266,10 @@ public class GdpduIndexParser {
         variableColumn.setAccuracy(Long.parseLong(ele2));
       });
     });
+
     element.processOptionalElement("AlphaNumeric", ele -> variableColumn.setDataType(DataType.AlphaNumeric));
     element.processOptionalTextElement("MaxLength", ele -> variableColumn.setMaxLength(Long.valueOf(ele)));
+
     element.processOptionalElement("Date", ele -> {
       variableColumn.setDataType(DataType.Date);
       element.processOptionalTextElement("Format", variableColumn::setFormat);

@@ -34,7 +34,7 @@ public class FixedColumn {
   @PositiveOrZero private long accuracy;  // Numeric
   private String format = "DD.MM.YYYY";  // Date
   @Valid private List<Mapping> mappings = new ArrayList<>();
-  @Valid private FixedRange fixedRange;
+  @Valid private Range fixedRange;
 
   public String getName() {
     return name;
@@ -96,11 +96,11 @@ public class FixedColumn {
     this.mappings = mappings;
   }
 
-  public FixedRange getFixedRange() {
+  public Range getFixedRange() {
     return fixedRange;
   }
 
-  public void setFixedRange(FixedRange fixedRange) {
+  public void setFixedRange(Range fixedRange) {
     this.fixedRange = fixedRange;
   }
 
