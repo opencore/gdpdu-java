@@ -4,25 +4,40 @@ image:https://img.shields.io/github/workflow/status/opencore/gdpdu-java/Maven Bu
 image:https://img.shields.io/github/license/opencore/gdpdu-java[GitHub]
 
 
+
 This is a simple Java project that can read GDPdU/GoDB `index.xml` files and provide a rich Java model for them.
 
-It can also read `VariableLength` tables into Java objects.
+Using the classes in these projects you can:
 
-NOTE: What used to be the _GoDB_ has been replaced by _GDPdU_ in 2015.
-The technical standard has not changed though.
+* Parse an `index.xml` file into strongly typed Java objects (using the `gdpdu-index-parser` module)
+* Validate that an `index.xml` file is correct
+* Parse `VariableLength` (`FixedLength` not supported yet) data files described by an `index.xml` file into strongly typed Java objects (using the `gdpdu-data-parser` module)
 
-NOTE: `FixedLength` not yet supported.
+NOTE: What used to be the _GDPdU_ has been replaced by _GoBD_ in 2015.
+The technical standard has not changed though, so we decided to keep the name _GDPdU_ for the library itself.
+
+We wrote this project to validate https://www.bzst.de/DE/Unternehmen/Aussenpruefungen/DigitaleSchnittstelleFinV/digitaleschnittstellefinv_node.html[DSFinV-K] data exports.
+There is a separate https://github.com/opencore/dsfinvk-java[project] that uses this library to do this and to provide a simple CLI.
+
+
+== How to use
+
+Currently, there are no pre-built binaries or packages in a Maven repository.
+There is also no CLI available at the moment.
+
+In the meantime, the relevant classes are `GdpduIndexParser`, `GdpduIndexValidator` and `GdpduDataParser`.
+
 
 == Terminology
 
 GDPdU :: _Grundsätze zum Datenzugriff und zur Prüfbarkeit digitaler Unterlagen_
 +
-These have replaced the _GoBD_ in 2015
-The GDPdU was initially released in 2014 but the latest version is from 2019.
+These have been replaced by the _GoBD_ in 2015
 
 GoBD :: _Grundsätze zur ordnungsmäßigen Führung und Aufbewahrung von Büchern, Aufzeichnungen und Unterlagen in elektronischer Form sowie zum Datenzugriff_
 +
-They were replaced by the _GDPdU_ in 2015.
+The GoBD was initially released in 2014 but the latest version is from 2019.
+They replaced the _GDPdU_ in 2015.
 
 == Resources
 
