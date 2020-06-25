@@ -1,4 +1,5 @@
 module com.opencore.gdpdu.data {
+
   requires commons.csv;
   requires com.opencore.gdpdu.common;
   requires com.opencore.gdpdu.index;
@@ -8,4 +9,7 @@ module com.opencore.gdpdu.data {
   requires transitive org.slf4j;
 
   exports com.opencore.gdpdu.data;
+
+  opens com.opencore.gdpdu.data;
+
 }
