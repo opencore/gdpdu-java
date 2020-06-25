@@ -32,9 +32,12 @@ import com.opencore.gdpdu.index.models.DataSet;
 import com.opencore.gdpdu.index.models.Table;
 import com.opencore.gdpdu.index.models.VariableColumn;
 
-public class GdpduIndexValidator {
+public final class GdpduIndexValidator {
 
   private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
+
+  private GdpduIndexValidator() {
+  }
 
   public static Set<ConstraintViolation<DataSet>> validateDataSet(DataSet dataSet) {
     return VALIDATOR.validate(dataSet);
@@ -46,7 +49,6 @@ public class GdpduIndexValidator {
    * <p/>
    * It currently returns a list of Strings containing error messages.
    * TODO: This is not optimal and could be improved later to e.g. return structured violation objects
-   * @return
    */
   public static <T> List<String> validateTableAgainstClass(Class<T> clazz, Table table) throws ParsingException {
     Objects.requireNonNull(table, "'table' can't be null");
@@ -83,9 +85,9 @@ public class GdpduIndexValidator {
 
   /**
    * This validates a class against an index.xml file to make sure that each column in the index.xml has a field in the class.
-   * The reverse can be checked using validateIndexXml TODO
+   * The reverse can be checked using {@link #validateTableAgainstClass(Class, Table)}.
    */
-  private <T> void validateClass(Class<T> clazz, Table table) throws ParsingException {
+  public static <T> void validateClass(Class<T> clazz, Table table) throws ParsingException {
     Objects.requireNonNull(table, "'table' can't be null");
     Objects.requireNonNull(clazz, "'clazz' can't be null");
 

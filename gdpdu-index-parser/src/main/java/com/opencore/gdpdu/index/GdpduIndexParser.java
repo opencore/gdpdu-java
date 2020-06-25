@@ -49,7 +49,10 @@ import org.xml.sax.SAXException;
  * First, this does not require any dependencies and second the Commands for Media are problematic to map because they appear twice. Once before the tables and once after.
  * I did not find a way to map this correctly into two distinct lists using JAXB.
  */
-public class GdpduIndexParser {
+public final class GdpduIndexParser {
+
+  private GdpduIndexParser() {
+  }
 
   @SuppressWarnings("unused")
   public static DataSet parseXmlFile(String path) throws IOException {
@@ -316,9 +319,6 @@ public class GdpduIndexParser {
     element.processTextElement("Name", extension::setName);
     element.processTextElement("URL", extension::setUrl);
     return extension;
-  }
-
-  private GdpduIndexParser() {
   }
 
   public enum ParseMode {
