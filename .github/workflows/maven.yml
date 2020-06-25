@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Build with JDK ${{ matrx.java }}
+    name: Build with JDK ${{ matrix.java }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
