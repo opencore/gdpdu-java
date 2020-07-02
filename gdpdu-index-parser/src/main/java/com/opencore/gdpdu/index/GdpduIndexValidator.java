@@ -39,13 +39,17 @@ public final class GdpduIndexValidator {
   private GdpduIndexValidator() {
   }
 
+  /**
+   * This runs validations on a {@link DataSet}.
+   * When using {@link GdpduIndexParser} it should already be syntactically correct due to the DTD but this validates a few semantic things as well.
+   */
   public static Set<ConstraintViolation<DataSet>> validateDataSet(DataSet dataSet) {
     return VALIDATOR.validate(dataSet);
   }
 
   /**
    * This method takes a {@link Table} object from an index.xml file as well as an arbitrary class.
-   * It then checks whether the table has all the columns that are specified on the class with {@link Column} annotations and the correct datatypes.
+   * It then checks whether the table has all the columns that are specified on the class with {@link Column} annotations and the correct data types.
    * <p/>
    * It currently returns a list of Strings containing error messages.
    * TODO: This is not optimal and could be improved later to e.g. return structured violation objects
@@ -60,6 +64,7 @@ public final class GdpduIndexValidator {
     List<String> errors = new ArrayList<>();
     // TODO: Validate the data types from the annotation against the index xml data
     if (table.getVariableLength() != null) {
+      // First we need to build a Map of all column names to their column definition (this includes the primary keys)
       Map<String, VariableColumn> columnMap = Stream.concat(
         table.getVariableLength().getVariablePrimaryKeys().stream(),
         table.getVariableLength().getVariableColumns().stream()
@@ -87,7 +92,7 @@ public final class GdpduIndexValidator {
    * This validates a class against an index.xml file to make sure that each column in the index.xml has a field in the class.
    * The reverse can be checked using {@link #validateTableAgainstClass(Class, Table)}.
    */
-  public static <T> void validateClass(Class<T> clazz, Table table) throws ParsingException {
+  public static <T> void validateClassAgainstTable(Class<T> clazz, Table table) throws ParsingException {
     Objects.requireNonNull(table, "'table' can't be null");
     Objects.requireNonNull(clazz, "'clazz' can't be null");
 
