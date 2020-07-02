@@ -258,13 +258,13 @@ public final class GdpduIndexParser {
     element.processTextElement("Name", variableColumn::setName);
     element.processOptionalTextElement("Description", variableColumn::setDescription);
 
-    element.processOptionalElement("Numeric", (ElementWrapper ele) -> {
+    element.processOptionalElement("Numeric", (ElementWrapper numericElement) -> {
       variableColumn.setDataType(DataType.Numeric);
-      element.processOptionalTextElement("ImpliedAccuracy", (String ele2) -> {
+      numericElement.processOptionalTextElement("ImpliedAccuracy", (String ele2) -> {
         variableColumn.setAccuracyType(AccuracyType.ImpliedAccuracy);
         variableColumn.setAccuracy(Long.parseLong(ele2));
       });
-      element.processOptionalTextElement("Accuracy", (String ele2) -> {
+      numericElement.processOptionalTextElement("Accuracy", (String ele2) -> {
         variableColumn.setAccuracyType(AccuracyType.Accuracy);
         variableColumn.setAccuracy(Long.parseLong(ele2));
       });
