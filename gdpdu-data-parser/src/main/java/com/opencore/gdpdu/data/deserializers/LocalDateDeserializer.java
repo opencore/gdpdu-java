@@ -10,28 +10,25 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu.data;
+package com.opencore.gdpdu.data.deserializers;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import com.opencore.gdpdu.common.exceptions.ParsingException;
-import org.junit.jupiter.api.Test;
+import com.opencore.gdpdu.index.models.DataType;
 
+// TODO: Format support
+public class LocalDateDeserializer extends Deserializer<LocalDate> {
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-public class GdpduDataParserTest {
-
-  @Test
-  void testParsing() throws ParsingException {
-    List<TestModel> models = GdpduDataParser.parseTable("src/test/resources/data1/index.xml", "Testdatei Nr. 1", TestModel.class);
-
-    assertNotNull(models);
-    assertEquals(2, models.size());
-
-    TestModel testModel = models.get(0);
-    assertEquals("foo", testModel.getFoo());
-    assertEquals(10, testModel.getBar());
+  @Override
+  protected LocalDate deserializeInternal(String value, DataType dataType, DeserializationContext context) throws ParsingException {
+    try {
+      return LocalDate.parse(value, DateTimeFormatter.ISO_DATE);
+    } catch (DateTimeParseException e) {
+      throw new ParsingException(e);
+    }
   }
+
 }

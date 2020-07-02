@@ -10,28 +10,35 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu.data;
+package com.opencore.gdpdu.data.deserializers;
 
-import java.util.List;
+public class DeserializationContext {
 
-import com.opencore.gdpdu.common.exceptions.ParsingException;
-import org.junit.jupiter.api.Test;
+  private boolean trim;
+  private String digitGroupingSymbol;
+  private String decimalSymbol;
 
+  public boolean isTrim() {
+    return trim;
+  }
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+  public void setTrim(boolean trim) {
+    this.trim = trim;
+  }
 
-public class GdpduDataParserTest {
+  public String getDigitGroupingSymbol() {
+    return digitGroupingSymbol;
+  }
 
-  @Test
-  void testParsing() throws ParsingException {
-    List<TestModel> models = GdpduDataParser.parseTable("src/test/resources/data1/index.xml", "Testdatei Nr. 1", TestModel.class);
+  public void setDigitGroupingSymbol(String digitGroupingSymbol) {
+    this.digitGroupingSymbol = digitGroupingSymbol;
+  }
 
-    assertNotNull(models);
-    assertEquals(2, models.size());
+  public String getDecimalSymbol() {
+    return decimalSymbol;
+  }
 
-    TestModel testModel = models.get(0);
-    assertEquals("foo", testModel.getFoo());
-    assertEquals(10, testModel.getBar());
+  public void setDecimalSymbol(String decimalSymbol) {
+    this.decimalSymbol = decimalSymbol;
   }
 }

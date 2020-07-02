@@ -13,15 +13,13 @@
 package com.opencore.gdpdu.data;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +30,8 @@ import javax.validation.ConstraintViolation;
 import com.opencore.gdpdu.common.exceptions.ParsingException;
 import com.opencore.gdpdu.common.util.ClassRegistry;
 import com.opencore.gdpdu.common.util.ColumnInfo;
+import com.opencore.gdpdu.data.deserializers.DeserializationContext;
+import com.opencore.gdpdu.data.deserializers.Deserializers;
 import com.opencore.gdpdu.index.GdpduIndexParser;
 import com.opencore.gdpdu.index.GdpduIndexValidator;
 import com.opencore.gdpdu.index.annotations.Column;
@@ -48,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // TODO: Make it so that index.xml doesn't need to be parsed again for each table
+
 /**
  * This class can be used to read GDPdu conformant data files into Java objects.
  * These objects have to be annotated with the {@link Column} annotation.
@@ -58,100 +59,31 @@ public class GdpduDataParser {
 
   private static final Logger LOG = LoggerFactory.getLogger(GdpduDataParser.class);
 
-  private static <T> T newInstance(Class<T> clazz) throws ParsingException {
-    T t;
-    try {
-      t = clazz.getDeclaredConstructor().newInstance();
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new ParsingException(e);
-    }
-    return t;
-  }
-
-  // TODO: All of these should be made pluggable
-
-  /**
-   * This takes a value that we read from an input data file and tries to serialize it into a Java object.
-   */
-  private static <T> void deserializeValue(Table table, T t, VariableColumn currentColumn, String currentValue, Method method) throws ParsingException {
-    try {
-      if (method != null) {
-        Class<?> parameterType = method.getParameterTypes()[0]; // In the ClassRegistry we checked that every write method has exactly one parameter
-        if (parameterType == String.class) {
-          method.invoke(t, currentValue);
-        } else if (parameterType == LocalDateTime.class) {
-          LocalDateTime localDateTime;
-          try {
-            localDateTime = LocalDateTime.parse(currentValue, DateTimeFormatter.ISO_DATE_TIME);
-          } catch (DateTimeParseException e) {
-            throw new ParsingException(e);
-          }
-          method.invoke(t, localDateTime);
-        } else if (parameterType == int.class || parameterType == Integer.class) {
-          method.invoke(t, Integer.parseInt(currentValue.replace(table.getDigitGroupingSymbol(), "")));
-        } else if (parameterType == LocalDate.class) {
-          LocalDate localDate;
-          try {
-            localDate = LocalDate.parse(currentValue, DateTimeFormatter.ISO_DATE);
-          } catch (DateTimeParseException e) {
-            throw new ParsingException(e);
-          }
-          method.invoke(t, localDate);
-        } else if (parameterType == BigDecimal.class) {
-          String replaced = currentValue.replace(table.getDigitGroupingSymbol(), "");
-          replaced = replaced.replace(table.getDecimalSymbol(), ".");
-          method.invoke(t, new BigDecimal(replaced));
-        } else if (parameterType == long.class || parameterType == Long.class) {
-          method.invoke(t, Long.parseLong(currentValue.replace(table.getDigitGroupingSymbol(), "")));
-        } else if (parameterType.isEnum()) {
-          @SuppressWarnings("unchecked")
-          Class<Enum<?>> enumClass = (Class<Enum<?>>) parameterType;
-          method.invoke(t, parseEnum(enumClass, currentValue));
-        } else if (parameterType == boolean.class || parameterType == Boolean.class) {
-          method.invoke(t, currentValue.equals("1"));
-        } else {
-          LOG.warn("Unmapped type [{}] for column [{}]", parameterType, currentColumn.getName());
-          throw new ParsingException("Unmapped type [" + parameterType + "] for column [" + currentColumn.getName() + "]");
-        }
-      }
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new ParsingException(e);
-    }
-  }
-
-  private static Enum<?> parseEnum(Class<Enum<?>> enumClass, String value) {
-    for (Enum<?> enumConstant : enumClass.getEnumConstants()) {
-      if (enumConstant.name().equalsIgnoreCase(value)) {
-        return enumConstant;
-      }
-    }
-    return null;
-  }
-
-  public <T> List<T> parseTable(String indexXml, String tableName, Class<T> clazz) throws ParsingException {
-    return parseTable(new File(Objects.requireNonNull(indexXml)), tableName, clazz);
-  }
-
   /**
    * Parses a single {@link Table} from a specific {@code index.xml} file into a List of domain objects.
+   *
+   * This will search for all files in a specific directory.
    */
-  @SuppressWarnings("WeakerAccess")
-  public <T> List<T> parseTable(File indexXmlFile, String tableName, Class<T> clazz) throws ParsingException {
-    Objects.requireNonNull(indexXmlFile, "'indexXmlFile' can't be null");
-    Objects.requireNonNull(tableName, "'tableName' can't be null");
-    Objects.requireNonNull(clazz, "'clazz' can't be null");
+  public static <T> List<T> parseTable(String indexXml, String tableName, Class<T> clazz) throws ParsingException {
+    Objects.requireNonNull(indexXml, "`indexXml` can't be null");
 
-    DataSet dataSet = parseIndexXml(indexXmlFile);
+    // TODO Validate that it can be read etc. I have a method somewhere
+    File indexXmlFile = new File(indexXml);
+
+    DataSet dataSet;
+    try {
+      dataSet = parseIndexXml(new FileInputStream(indexXmlFile));
+    } catch (FileNotFoundException e) {
+      throw new ParsingException(e);
+    }
     validateDataSet(dataSet);
 
     // Try to find the table in our index.xml file
     Table table = null;
-    Media media = null;
     for (Media tmpMedia : dataSet.getMedia()) {
       for (Table tmpTable : tmpMedia.getTables()) {
         if (tableName.equals(tmpTable.getName()) || tableName.equals(tmpTable.getUrl())) {
           table = tmpTable;
-          media = tmpMedia;
           break;
         }
       }
@@ -161,9 +93,27 @@ public class GdpduDataParser {
       throw new ParsingException("Table could not be found, aborting");
     }
 
+    File dataFile = new File(indexXmlFile.getAbsoluteFile().getParentFile(), table.getUrl());
+    try (InputStream fis = new FileInputStream(dataFile)) {
+      return parseTable(fis, table, clazz);
+    } catch (IOException e) {
+      throw new ParsingException(e);
+    }
+  }
+
+  /**
+   * This parses a table from an InputStream.
+   * It is your responsibility to pass in a properly constructed {@link Table} object.
+   */
+  @SuppressWarnings("WeakerAccess")
+  public static <T> List<T> parseTable(InputStream tableStream, Table table, Class<T> clazz) throws ParsingException {
+    Objects.requireNonNull(tableStream, "`tableStream` can't be null");
+    Objects.requireNonNull(table, "'table' can't be null");
+    Objects.requireNonNull(clazz, "'clazz' can't be null");
+
     ClassRegistry.registerClass(clazz);
 
-    // TODO: Make this a choice or a separate step alltogether, this method starts to do a lot of different things
+    // TODO: Make this a choice or a separate step all together, this method starts to do a lot of different things
     //validateClass(clazz, table);
     List<String> errors = GdpduIndexValidator.validateTableAgainstClass(clazz, table);
     if (!errors.isEmpty()) {
@@ -174,17 +124,11 @@ public class GdpduDataParser {
       throw new ParsingException("index.xml does not match clazz");
     }
 
-    //TODO: Validate that there's a setter/write method for each column in the Table object
-
-
-    // All files need to be relative to the index.xml file
-    File directory = indexXmlFile.getAbsoluteFile().getParentFile();
-
     if (table.getVariableLength() != null) {
-      LOG.trace("[{}] is VariableLength table, parsing now", tableName);
-      return parseVariableLengthTable(directory, media, table, clazz);
+      LOG.trace("[{}] is VariableLength table, parsing now", table.getName());
+      return parseVariableLengthTable(tableStream, table, clazz);
     } else if (table.getFixedLength() != null) {
-      LOG.trace("[{}] is FixedLength table, parsing now", tableName);
+      LOG.trace("[{}] is FixedLength table, parsing now", table.getName());
       //TODO Support fixedLength
       throw new UnsupportedOperationException("FixedLength not supported yet");
     } else {
@@ -192,35 +136,14 @@ public class GdpduDataParser {
     }
   }
 
-  private void validateDataSet(DataSet dataSet) throws ParsingException {
-    Set<ConstraintViolation<DataSet>> constraintViolations = GdpduIndexValidator.validateDataSet(dataSet);
-    if (!constraintViolations.isEmpty()) {
-      for (ConstraintViolation<DataSet> constraintViolation : constraintViolations) {
-        LOG.warn("Violation found [{}] [{}]", constraintViolation.getPropertyPath(), constraintViolation.getMessage());
-      }
-      throw new ParsingException("invalid index.xml file");
-    }
-  }
-
-  private DataSet parseIndexXml(File indexXmlFile) throws ParsingException {
-    LOG.trace("Beginning to parse [{}]", indexXmlFile);
-    DataSet dataSet;
-    try {
-      dataSet = GdpduIndexParser.parseXmlFile(indexXmlFile);
-    } catch (IOException e) {
-      throw new ParsingException(e);
-    }
-    LOG.debug("Successfully parsed [{}]", indexXmlFile);
-    return dataSet;
-  }
-
   /**
    * This method parses a variable length (i.e. "CSV"/"TSV", ...) table into domain objects.
    * It uses two phases: Parse into generic records and then map to domain objects.
    */
-  private <T> List<T> parseVariableLengthTable(File directory, Media media, Table table, Class<T> clazz) throws ParsingException {
-    Objects.requireNonNull(directory, "'directory' can't be null");
-    Objects.requireNonNull(media, "'media' can't be null");
+  // TODO: Switch to a custom parser and remove the Commons CSV dependency
+  @SuppressWarnings("WeakerAccess")
+  public static <T> List<T> parseVariableLengthTable(InputStream tableStream, Table table, Class<T> clazz) throws ParsingException {
+    Objects.requireNonNull(tableStream, "'tableStream' can't be null");
     Objects.requireNonNull(table, "'table' can't be null");
     Objects.requireNonNull(clazz, "'clazz' can't be null");
 
@@ -232,25 +155,23 @@ public class GdpduDataParser {
       .withQuote(variableLength.getTextEncapsulator().charAt(0));
     LOG.debug("Parsing with settings: [{}]", format);
 
-    File csvFile = new File(directory, table.getUrl());
-    if (!csvFile.canRead() || csvFile.isDirectory()) {
-      LOG.error("Referenced file [{}] can't be read, aborting", csvFile);
-      throw new ParsingException("Referenced file [" + csvFile + "] can't be read, aborting");
-    }
-
     // We first parse the file into a generic "record" that's based only on Strings
     CSVParser parser;
     try {
       // TODO: Don't hardcode the charset, take it from the index.xml file
-      parser = CSVParser.parse(csvFile, Charset.forName("Cp1252"), format);
+      parser = CSVParser.parse(tableStream, Charset.forName("Cp1252"), format);
     } catch (IOException e) {
       throw new ParsingException(e);
     }
 
     LongRange range = fillDefaults(table.getRange());
 
-
     // Convert the "generic" record into the specific type
+    DeserializationContext context = new DeserializationContext();
+    context.setDecimalSymbol(table.getDecimalSymbol());
+    context.setDigitGroupingSymbol(table.getDigitGroupingSymbol());
+    context.setTrim(false);
+
     List<T> results = new ArrayList<>();
     try {
       // GDPdU seems to be "1" based. We increment the index at the beginning of the loop so we start at 0 here
@@ -269,11 +190,10 @@ public class GdpduDataParser {
         }
         count++;
 
-
-        // TODO: Make this configurable
+        // TODO: Do something with these errors and make it configurable whether to abort on error or not
         List<ParsingException> exceptions = new ArrayList<>();
         try {
-          results.add(parseRecord(record, table, clazz));
+          results.add(parseRecord(record, table, context, clazz));
         } catch (ParsingException e) {
           LOG.warn("Encountered error while parsing record [{}] from table [{}] into class [{}]", record, table.getName(), clazz, e);
           exceptions.add(e);
@@ -286,32 +206,82 @@ public class GdpduDataParser {
     return results;
   }
 
+  private static <T> T newInstance(Class<T> clazz) throws ParsingException {
+    T t;
+    try {
+      t = clazz.getDeclaredConstructor().newInstance();
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      throw new ParsingException(e);
+    }
+    return t;
+  }
+
+  /**
+   * This takes a value that we read from an input data file and tries to serialize it into a Java object.
+   */
+  private static <T> void deserializeValue(T t, VariableColumn currentColumn, String currentValue, DeserializationContext context, Method method) throws ParsingException {
+    if (method == null) {
+      return;
+    }
+
+    try {
+      Class<?> parameterType = method.getParameterTypes()[0]; // In the ClassRegistry we checked that every write method has exactly one parameter
+      Object object = Deserializers.deserialize(currentValue, parameterType, currentColumn.getDataType(), context);
+      method.invoke(t, object);
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      throw new ParsingException(e);
+    }
+  }
+
+  private static void validateDataSet(DataSet dataSet) throws ParsingException {
+    Set<ConstraintViolation<DataSet>> constraintViolations = GdpduIndexValidator.validateDataSet(dataSet);
+    if (!constraintViolations.isEmpty()) {
+      for (ConstraintViolation<DataSet> constraintViolation : constraintViolations) {
+        LOG.warn("Violation found [{}] [{}]", constraintViolation.getPropertyPath(), constraintViolation.getMessage());
+      }
+      throw new ParsingException("invalid index.xml file");
+    }
+  }
+
+  private static DataSet parseIndexXml(InputStream indexXmlFile) throws ParsingException {
+    LOG.trace("Beginning to parse index.xml");
+    DataSet dataSet;
+    try {
+      dataSet = GdpduIndexParser.parseXmlFile(indexXmlFile);
+    } catch (IOException e) {
+      throw new ParsingException(e);
+    }
+    LOG.debug("Successfully parsed index.xml");
+    return dataSet;
+  }
+
   // TODO: Need to deal with values that are not valid numbers
-  private LongRange fillDefaults(Range range) {
+  private static LongRange fillDefaults(Range range) {
     LongRange longRange = new LongRange();
     if (range == null) {
       return longRange;
     }
     if (range.getFrom() != null && !range.getFrom().isBlank()) {
-        longRange.from = Long.parseLong(range.getFrom());
+      longRange.from = Long.parseLong(range.getFrom());
     }
     if (range.getTo() != null && !range.getTo().isBlank()) {
-        longRange.to = Long.parseLong(range.getTo());
+      longRange.to = Long.parseLong(range.getTo());
     }
     if (range.getLength() != null && !range.getLength().isBlank()) {
-        longRange.to = Long.parseLong(range.getLength());
+      longRange.to = Long.parseLong(range.getLength());
     }
     return longRange;
   }
 
   // TODO: This is specific to variable length stuff now, need to see if this can be made generic enough to support fixed length as well
-  private <T> T parseRecord(CSVRecord record, Table table, Class<T> clazz) throws ParsingException {
+  private static <T> T parseRecord(CSVRecord record, Table table, DeserializationContext context, Class<T> clazz) throws ParsingException {
     Objects.requireNonNull(record, "'record' can't be null");
     Objects.requireNonNull(table, "'table' can't be null");
     Objects.requireNonNull(clazz, "'clazz' can't be null");
 
     Map<String, ColumnInfo> writeMethods = ClassRegistry.getClassInformation(clazz);
 
+    // TODO: This repeats for every row, move this up
     List<VariableColumn> columns = new ArrayList<>();
     columns.addAll(table.getVariableLength().getVariablePrimaryKeys());
     columns.addAll(table.getVariableLength().getVariableColumns());
@@ -335,13 +305,14 @@ public class GdpduDataParser {
 
       // Here we deserialize the Strings into strongly typed values depending on their type
       Method method = writeMethods.get(currentColumn.getName()).setter;
-      deserializeValue(table, t, currentColumn, currentValue, method);
+      deserializeValue(t, currentColumn, currentValue, context, method);
     }
 
     return t;
   }
 
   private static class LongRange {
+
     long from = 1;
     long to = Long.MAX_VALUE;
     long length = Long.MAX_VALUE;

@@ -10,28 +10,20 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.opencore.gdpdu.data;
+package com.opencore.gdpdu.data.deserializers;
 
-import java.util.List;
+import com.opencore.gdpdu.index.models.DataType;
 
-import com.opencore.gdpdu.common.exceptions.ParsingException;
-import org.junit.jupiter.api.Test;
+/**
+ * This deserializes data into a String field.
+ *
+ * It does not matter which data type was defined in the table.
+ * The original string will be stored in either case.
+ */
+public class StringDeserializer extends Deserializer<String> {
 
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-public class GdpduDataParserTest {
-
-  @Test
-  void testParsing() throws ParsingException {
-    List<TestModel> models = GdpduDataParser.parseTable("src/test/resources/data1/index.xml", "Testdatei Nr. 1", TestModel.class);
-
-    assertNotNull(models);
-    assertEquals(2, models.size());
-
-    TestModel testModel = models.get(0);
-    assertEquals("foo", testModel.getFoo());
-    assertEquals(10, testModel.getBar());
+  @Override
+  protected String deserializeInternal(String value, DataType dataType, DeserializationContext context) {
+    return value;
   }
 }
