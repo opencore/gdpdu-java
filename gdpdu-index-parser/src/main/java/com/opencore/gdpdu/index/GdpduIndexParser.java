@@ -320,12 +320,4 @@ public final class GdpduIndexParser {
     return extension;
   }
 
-  public enum ParseMode {
-    /**
-     * Strict mode does validate DTD
-     */
-    STRICT,
-    LENIENT
-  }
-
 }
