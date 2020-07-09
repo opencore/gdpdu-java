@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DataSet SYSTEM "gdpdu-01-09-2004.dtd">
+<DataSet>
+  <Version>1.0</Version>
+  <DataSupplier>
+    <Name>OpenCore GmbH &amp; Co. KG</Name>
+    <Location>Wedel, Deutschland</Location>
+    <Comment>Testdatei</Comment>
+  </DataSupplier>
+  <Command>echo Pre-Media</Command>
+  <Media>
+    <Name>Media 1</Name>
+    <Command>echo Pre-Tables</Command>
+    <Table>
+      <URL>data.csv</URL>
+      <Name>Table 1</Name>
+      <Description>Testdatei</Description>
+      <Validity>
+        <Range>
+          <From>20.02.2020</From>
+        </Range>
+      </Validity>
+      <OEM/>
+      <DecimalSymbol>,</DecimalSymbol>
+      <DigitGroupingSymbol>  </DigitGroupingSymbol>
+      <SkipNumBytes>100</SkipNumBytes>
+      <Range>
+        <From>2</From>
+        <Length>2</Length>
+      </Range>
+      <Epoch>75</Epoch>
+      <VariableLength>
+        <ColumnDelimiter>||</ColumnDelimiter>
+        <RecordDelimiter>&#10;</RecordDelimiter>
+        <VariablePrimaryKey>
+          <Name>PrimaryKey</Name>
+          <AlphaNumeric/>
+        </VariablePrimaryKey>
+        <VariableColumn>
+          <Name>A</Name>
+          <Description>Eine Spalte!</Description>
+          <Numeric>
+            <ImpliedAccuracy>3</ImpliedAccuracy>
+          </Numeric>
+        </VariableColumn>
+        <VariableColumn>
+          <Name>B</Name>
+          <Numeric>
+            <Accuracy>7</Accuracy>
+          </Numeric>
+        </VariableColumn>
+        <VariableColumn>
+          <Name>C</Name>
+          <AlphaNumeric/>
+        </VariableColumn>
+        <VariableColumn>
+          <Name>D</Name>
+          <AlphaNumeric/>
+          <MaxLength>10</MaxLength>
+        </VariableColumn>
+        <VariableColumn>
+          <Name>E</Name>
+          <Date/>
+        </VariableColumn>
+        <VariableColumn>
+          <Name>F</Name>
+          <Date>
+            <Format>YY-MM-DD</Format>
+          </Date>
+        </VariableColumn>
+        <VariableColumn>
+          <Name>G</Name>
+          <AlphaNumeric/>
+          <Map>
+            <From>0</From>
+            <To>1</To>
+          </Map>
+          <Map>
+            <From>1</From>
+            <To>0</To>
+          </Map>
+        </VariableColumn>
+        <ForeignKey>
+          <Name>PrimaryKey</Name>
+          <Name>A</Name>
+          <References>Table 2</References>
+        </ForeignKey>
+      </VariableLength>
+    </Table>
+    <Command>echo Post-Tables</Command>
+  </Media>
+  <Media>
+    <Name>NoTables</Name>
+    <AcceptNoTables/>
+  </Media>
+  <Media>
+    <Name>Media 3</Name>
+    <Table>
+      <URL>data2.csv</URL>
+      <VariableLength>
+        <VariableColumn>
+          <Name>PrimaryKey</Name>
+          <AlphaNumeric/>
+        </VariableColumn>
+        <VariableColumn>
+          <Name>A</Name>
+          <AlphaNumeric/>
+        </VariableColumn>
+      </VariableLength>
+    </Table>
+  </Media>
+  <Command>echo Post-Media</Command>
+</DataSet>
