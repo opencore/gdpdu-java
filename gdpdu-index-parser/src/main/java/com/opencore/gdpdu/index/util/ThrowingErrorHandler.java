@@ -16,21 +16,25 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class LoggingErrorHandler implements ErrorHandler {
+/**
+ * This ErrorHandler just rethrows all Exceptions that occur during parsing.
+ * We rely on the document being correct/well formed for our own parsing later.
+ */
+public class ThrowingErrorHandler implements ErrorHandler {
 
   @Override
   public void warning(SAXParseException exception) throws SAXException {
-    exception.printStackTrace();
+    throw exception;
   }
 
   @Override
   public void error(SAXParseException exception) throws SAXException {
-    exception.printStackTrace();
+    throw exception;
   }
 
   @Override
   public void fatalError(SAXParseException exception) throws SAXException {
-    exception.printStackTrace();
+    throw exception;
   }
 
 }
