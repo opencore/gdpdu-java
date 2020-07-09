@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE DataSet SYSTEM "gdpdu-01-09-2004.dtd">
 <DataSet>
+  <Version>1.0</Version>
   <Extension>
     <Name>Test</Name>
     <URL>Test</URL>
   </Extension>
-  <Version>1.0</Version>
   <DataSupplier>
     <Name>OpenCore GmbH &amp; Co. KG</Name>
     <Location>Wedel, Deutschland</Location>

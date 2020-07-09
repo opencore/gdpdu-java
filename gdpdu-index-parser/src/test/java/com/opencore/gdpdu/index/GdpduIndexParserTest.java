@@ -13,10 +13,12 @@
 package com.opencore.gdpdu.index;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.opencore.gdpdu.index.models.DataSet;
 import com.opencore.gdpdu.index.models.DataSupplier;
 import com.opencore.gdpdu.index.models.Encoding;
+import com.opencore.gdpdu.index.models.Extension;
 import com.opencore.gdpdu.index.models.Media;
 import com.opencore.gdpdu.index.models.Table;
 import org.junit.jupiter.api.Test;
@@ -27,8 +29,26 @@ import static org.junit.jupiter.api.Assertions.*;
 class GdpduIndexParserTest {
 
   @Test
+  void testNonexistantFile() throws IOException {
+    assertThrows(IllegalArgumentException.class, () -> GdpduIndexParser.parseXmlFile("doesnotexist.xml"));
+
+    InputStream is = null;
+    assertThrows(NullPointerException.class, () -> GdpduIndexParser.parseXmlFile(is));
+  }
+
+  @Test
+  void testInvalidFile() {
+    assertThrows(IOException.class, () -> GdpduIndexParser.parseXmlFile("src/test/resources/malformed-index.xml"));
+  }
+
+  @Test
   void testComplexParsing() throws IOException {
     DataSet dataSet = GdpduIndexParser.parseXmlFile("src/test/resources/complex-index.xml");
+
+    assertEquals(1, dataSet.getExtensions().size());
+    Extension extension = dataSet.getExtensions().get(0);
+    assertEquals("Test", extension.getName());
+    assertEquals("Test", extension.getUrl());
 
     assertEquals("1.0", dataSet.getVersion());
 

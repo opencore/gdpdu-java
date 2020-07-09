@@ -40,7 +40,7 @@ import com.opencore.gdpdu.index.models.Validity;
 import com.opencore.gdpdu.index.models.VariableColumn;
 import com.opencore.gdpdu.index.models.VariableLength;
 import com.opencore.gdpdu.index.util.ElementWrapper;
-import com.opencore.gdpdu.index.util.LoggingErrorHandler;
+import com.opencore.gdpdu.index.util.ThrowingErrorHandler;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -120,7 +120,7 @@ public final class GdpduIndexParser {
       }
     });
 
-    db.setErrorHandler(new LoggingErrorHandler());
+    db.setErrorHandler(new ThrowingErrorHandler());
     return db;
   }
 
