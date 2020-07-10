@@ -15,6 +15,7 @@
     <module>gdpdu-models</module>
     <module>gdpdu-index-parser</module>
     <module>gdpdu-data-parser</module>
+    <module>gdpdu-aggregator</module>
   </modules>
 
   <properties>
@@ -38,6 +39,8 @@
     <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
     <pitest-maven.version>1.5.2</pitest-maven.version>
     <pitest-junit5-plugin.version>0.12</pitest-junit5-plugin.version>
+
+    <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../gdpdu-aggregator/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
   <dependencyManagement>
@@ -82,24 +85,13 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.pitest</groupId>
-        <artifactId>pitest-maven</artifactId>
-        <version>${pitest-maven.version}</version>
-        <configuration>
-          <verbose>true</verbose>
-          <mutators>
-            <mutator>ALL</mutator>
-          </mutators>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.pitest</groupId>
-            <artifactId>pitest-junit5-plugin</artifactId>
-            <version>${pitest-junit5-plugin.version}</version>
-          </dependency>
-        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     <pluginManagement>
@@ -157,32 +149,24 @@
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${jacoco-maven-plugin.version}</version>
-          <executions>
-            <execution>
-              <id>default-prepare-agent</id>
-              <goals>
-                <goal>prepare-agent</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>default-prepare-agent-integration</id>
-              <goals>
-                <goal>prepare-agent-integration</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>default-report</id>
-              <goals>
-                <goal>report</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>default-report-integration</id>
-              <goals>
-                <goal>report-integration</goal>
-              </goals>
-            </execution>
-          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <version>${pitest-maven.version}</version>
+          <configuration>
+            <verbose>true</verbose>
+            <mutators>
+              <mutator>ALL</mutator>
+            </mutators>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.pitest</groupId>
+              <artifactId>pitest-junit5-plugin</artifactId>
+              <version>${pitest-junit5-plugin.version}</version>
+            </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
