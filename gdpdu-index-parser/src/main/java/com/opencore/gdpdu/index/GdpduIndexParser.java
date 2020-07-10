@@ -250,7 +250,6 @@ public final class GdpduIndexParser {
     return fixedColumn;
   }
 
-
   private static VariableColumn parseVariableColumn(ElementWrapper element) {
     VariableColumn variableColumn = new VariableColumn();
     element.processTextElement("Name", variableColumn::setName);

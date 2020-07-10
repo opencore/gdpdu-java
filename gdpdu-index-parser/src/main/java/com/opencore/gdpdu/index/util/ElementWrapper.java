@@ -12,7 +12,7 @@
  */
 package com.opencore.gdpdu.index.util;
 
- import java.util.Objects;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.w3c.dom.Element;
@@ -34,9 +34,25 @@ public class ElementWrapper {
   }
 
   /**
+   * This moves the current Node forward to the next Element.
+   * There are other types of nodes (e.g. Comments) that we are not interested in.
+   *
+   * @param node current node to start the search from
+   *
+   * @return next Element or null if we're at the end
+   */
+  private static Element findNextElement(Node node) {
+    while (node != null && node.getNodeType() != Node.ELEMENT_NODE) {
+      node = node.getNextSibling();
+    }
+
+    return (Element) node;
+  }
+
+  /**
    * Processes a required text element.
    *
-   * @param tagName expected XML tag
+   * @param tagName  expected XML tag
    * @param consumer function to call with the text data
    */
   public void processTextElement(String tagName, Consumer<String> consumer) {
@@ -50,7 +66,7 @@ public class ElementWrapper {
   /**
    * Processes an optional text element.
    *
-   * @param tagName expected XML tag
+   * @param tagName  expected XML tag
    * @param consumer function to call with the text data, will not be called if the tag doesn't exist
    */
   public void processOptionalTextElement(String tagName, Consumer<String> consumer) {
@@ -62,7 +78,7 @@ public class ElementWrapper {
   /**
    * Processes a required element.
    *
-   * @param tagName expected XML tag
+   * @param tagName  expected XML tag
    * @param consumer function to call with the element
    */
   public void processElement(String tagName, Consumer<ElementWrapper> consumer) {
@@ -76,7 +92,7 @@ public class ElementWrapper {
   /**
    * Processes an optional element.
    *
-   * @param tagName expected XML tag
+   * @param tagName  expected XML tag
    * @param consumer function to call with the element, will not be called if the tag doesn't exist
    */
   public void processOptionalElement(String tagName, Consumer<ElementWrapper> consumer) {
@@ -88,7 +104,7 @@ public class ElementWrapper {
   /**
    * Processes zero or more optional elements.
    *
-   * @param tagName expected XML tag
+   * @param tagName  expected XML tag
    * @param consumer function to call for each element, will not be called if the tag doesn't exist
    */
   public void processOptionalElements(String tagName, Consumer<ElementWrapper> consumer) {
@@ -100,7 +116,7 @@ public class ElementWrapper {
   /**
    * Processes one or more elements.
    *
-   * @param tagName expected XML tag
+   * @param tagName  expected XML tag
    * @param consumer function to call for each element
    */
   public void processOneOrMoreElements(String tagName, Consumer<ElementWrapper> consumer) {
@@ -117,7 +133,7 @@ public class ElementWrapper {
   /**
    * Processes zero or more optional text elements.
    *
-   * @param tagName expected XML tag
+   * @param tagName  expected XML tag
    * @param consumer function to call for each element, will not be called if the tag doesn't exist
    */
   public void processOptionalTextElements(String tagName, Consumer<String> consumer) {
@@ -126,21 +142,6 @@ public class ElementWrapper {
 
   private String getTextContent() {
     return element.getTextContent();
-  }
-
-  /**
-   * This moves the current Node forward to the next Element.
-   * There are other types of nodes (e.g. Comments) that we are not interested in.
-   *
-   * @param node current node to start the search from
-   * @return next Element or null if we're at the end
-   */
-  private static Element findNextElement(Node node) {
-    while (node != null && node.getNodeType() != Node.ELEMENT_NODE) {
-      node = node.getNextSibling();
-    }
-
-    return (Element) node;
   }
 
   private Element current() {

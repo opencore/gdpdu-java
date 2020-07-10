@@ -54,7 +54,4 @@ class ElementWrapperTest {
 
   }
 
-  @Test
-  void name() {
-  }
 }
