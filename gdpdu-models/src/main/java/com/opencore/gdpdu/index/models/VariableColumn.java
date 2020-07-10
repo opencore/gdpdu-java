@@ -13,11 +13,15 @@
 package com.opencore.gdpdu.index.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
+
+
+import static java.util.Objects.requireNonNull;
 
 // TODO: Validate depending on type
 // I don't really like how the types are modeled here, ideally it shouldn't be possible to construct invalid objects
@@ -98,11 +102,15 @@ public class VariableColumn {
   }
 
   public List<Mapping> getMappings() {
-    return mappings;
+    return Collections.unmodifiableList(mappings);
   }
 
   public void setMappings(List<Mapping> mappings) {
-    this.mappings = mappings;
+    this.mappings = new ArrayList<>(requireNonNull(mappings));
+  }
+
+  public void addMapping(Mapping mapping) {
+    mappings.add(requireNonNull(mapping));
   }
 
   @Override

@@ -142,21 +142,21 @@ public final class GdpduIndexParser {
 
   private static DataSet parseDataSet(ElementWrapper element) {
     DataSet dataSet = new DataSet();
-    element.processOptionalElements("Extension", (ElementWrapper ele) -> dataSet.getExtensions().add(parseExtension(ele)));
+    element.processOptionalElements("Extension", (ElementWrapper ele) -> dataSet.addExtension(parseExtension(ele)));
     element.processTextElement("Version", dataSet::setVersion);
     element.processOptionalElement("DataSupplier", (ElementWrapper ele) -> dataSet.setDataSupplier(parseDataSupplier(ele)));
-    element.processOptionalTextElements("Command", (String ele) -> dataSet.getPreCommands().add(ele));
-    element.processOneOrMoreElements("Media", (ElementWrapper ele) -> dataSet.getMedia().add(parseMedia(ele)));
-    element.processOptionalTextElements("Command", (String ele) -> dataSet.getPostCommands().add(ele));
+    element.processOptionalTextElements("Command", dataSet::addPreCommand);
+    element.processOneOrMoreElements("Media", (ElementWrapper ele) -> dataSet.addMedia(parseMedia(ele)));
+    element.processOptionalTextElements("Command", dataSet::addPostCommand);
     return dataSet;
   }
 
   private static Media parseMedia(ElementWrapper element) {
     Media media = new Media();
     element.processTextElement("Name", media::setName);
-    element.processOptionalTextElements("Command", (String ele) -> media.getPreCommands().add(ele));
-    element.processOptionalElements("Table", (ElementWrapper ele) -> media.getTables().add(parseTable(ele)));
-    element.processOptionalTextElements("Command", (String ele) -> media.getPostCommands().add(ele));
+    element.processOptionalTextElements("Command", media::addPreCommand);
+    element.processOptionalElements("Table", (ElementWrapper ele) -> media.addTable(parseTable(ele)));
+    element.processOptionalTextElements("Command", media::addPostCommand);
     element.processOptionalTextElement("AcceptNoTables", media::setAcceptNotables);
     return media;
   }
@@ -187,10 +187,10 @@ public final class GdpduIndexParser {
     FixedLength fixedLength = new FixedLength();
     element.processOptionalTextElement("Length", (String ele) -> fixedLength.setLength(Long.parseLong(ele)));
     element.processOptionalTextElement("RecordDelimiter", fixedLength::setRecordDelimiter);
-    element.processOptionalElements("FixedPrimaryKey", (ElementWrapper ele) -> fixedLength.getFixedPrimaryKeys().add(parseFixedColumn(ele)));
+    element.processOptionalElements("FixedPrimaryKey", (ElementWrapper ele) -> fixedLength.addPrimaryKey(parseFixedColumn(ele)));
     element.processOptionalElements("FixedColumn",
-      (ElementWrapper ele) -> fixedLength.getFixedColumns().add(parseFixedColumn(ele)));
-    element.processOptionalElements("ForeignKey", (ElementWrapper ele) -> fixedLength.getForeignKeys().add(parseForeignKey(ele)));
+      (ElementWrapper ele) -> fixedLength.addFixedColumn(parseFixedColumn(ele)));
+    element.processOptionalElements("ForeignKey", (ElementWrapper ele) -> fixedLength.addForeignKey(parseForeignKey(ele)));
 
     return fixedLength;
   }
@@ -200,23 +200,21 @@ public final class GdpduIndexParser {
     element.processOptionalTextElement("ColumnDelimiter", variableLength::setColumnDelimiter);
     element.processOptionalTextElement("RecordDelimiter", variableLength::setRecordDelimiter);
     element.processOptionalTextElement("TextEncapsulator", variableLength::setTextEncapsulator);
-    element.processOptionalElements("VariablePrimaryKey",
-      (ElementWrapper ele) -> variableLength.getVariablePrimaryKeys().add(parseVariableColumn(ele)));
-    element.processOptionalElements("VariableColumn",
-      (ElementWrapper ele) -> variableLength.getVariableColumns().add(parseVariableColumn(ele)));
-    element.processOptionalElements("ForeignKey", (ElementWrapper ele) -> variableLength.getForeignKeys().add(parseForeignKey(ele)));
+    element.processOptionalElements("VariablePrimaryKey", (ElementWrapper ele) -> variableLength.addVariablePrimaryKey(parseVariableColumn(ele)));
+    element.processOptionalElements("VariableColumn", (ElementWrapper ele) -> variableLength.addVariableColumn(parseVariableColumn(ele)));
+    element.processOptionalElements("ForeignKey", (ElementWrapper ele) -> variableLength.addForeignKey(parseForeignKey(ele)));
     return variableLength;
   }
 
   private static ForeignKey parseForeignKey(ElementWrapper element) {
     ForeignKey foreignKey = new ForeignKey();
-    element.processOptionalTextElements("Name", (String ele) -> foreignKey.getNames().add(ele));
+    element.processOptionalTextElements("Name", foreignKey::addName);
     element.processTextElement("References", foreignKey::setReferences);
     element.processOptionalElements("Alias", (ElementWrapper ele) -> {
       String[] entry = new String[2];
       element.processTextElement("From", (String ele2) -> entry[0] = ele2);
       element.processTextElement("To", (String ele2) -> entry[1] = ele2);
-      foreignKey.getAliases().put(entry[0], entry[1]);
+      foreignKey.addAlias(entry[0], entry[1]);
     });
     return foreignKey;
   }
@@ -245,7 +243,7 @@ public final class GdpduIndexParser {
       element.processOptionalTextElement("Format", fixedColumn::setFormat);
     });
 
-    element.processOptionalElements("Map", (ElementWrapper ele) -> fixedColumn.getMappings().add(parseMapping(ele)));
+    element.processOptionalElements("Map", (ElementWrapper ele) -> fixedColumn.addMapping(parseMapping(ele)));
 
     element.processElement("FixedRange", (ElementWrapper ele) -> fixedColumn.setFixedRange(parseRange(ele)));
 
@@ -278,7 +276,7 @@ public final class GdpduIndexParser {
       element.processOptionalTextElement("Format", variableColumn::setFormat);
     });
 
-    element.processOptionalElements("Map", (ElementWrapper ele) -> variableColumn.getMappings().add(parseMapping(ele)));
+    element.processOptionalElements("Map", (ElementWrapper ele) -> variableColumn.addMapping(parseMapping(ele)));
     return variableColumn;
   }
 

@@ -13,10 +13,14 @@
 package com.opencore.gdpdu.index.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+
+
+import static java.util.Objects.requireNonNull;
 
 public class ForeignKey {
 
@@ -25,11 +29,15 @@ public class ForeignKey {
   private Map<String, String> aliases = new HashMap<>();
 
   public List<String> getNames() {
-    return names;
+    return Collections.unmodifiableList(names);
   }
 
   public void setNames(List<String> names) {
-    this.names = names;
+    this.names = new ArrayList<>(requireNonNull(names));
+  }
+
+  public void addName(String name) {
+    names.add(requireNonNull(name));
   }
 
   /**
@@ -45,11 +53,15 @@ public class ForeignKey {
   }
 
   public Map<String, String> getAliases() {
-    return aliases;
+    return Collections.unmodifiableMap(aliases);
   }
 
   public void setAliases(Map<String, String> aliases) {
-    this.aliases = aliases;
+    this.aliases = new HashMap<>(requireNonNull(aliases));
+  }
+
+  public void addAlias(String from, String to) {
+    aliases.put(requireNonNull(from), requireNonNull(to));
   }
 
   @Override

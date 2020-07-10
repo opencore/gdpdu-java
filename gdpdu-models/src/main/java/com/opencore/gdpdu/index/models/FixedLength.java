@@ -13,9 +13,13 @@
 package com.opencore.gdpdu.index.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import javax.validation.Valid;
+
+
+import static java.util.Objects.requireNonNull;
 
 public class FixedLength {
 
@@ -42,27 +46,39 @@ public class FixedLength {
   }
 
   public List<FixedColumn> getFixedPrimaryKeys() {
-    return fixedPrimaryKeys;
+    return Collections.unmodifiableList(fixedPrimaryKeys);
   }
 
   public void setFixedPrimaryKeys(List<FixedColumn> fixedPrimaryKeys) {
-    this.fixedPrimaryKeys = fixedPrimaryKeys;
+    this.fixedPrimaryKeys = new ArrayList<>(requireNonNull(fixedPrimaryKeys));
+  }
+
+  public void addPrimaryKey(FixedColumn primaryKey) {
+    fixedPrimaryKeys.add(primaryKey);
   }
 
   public List<FixedColumn> getFixedColumns() {
-    return fixedColumns;
+    return Collections.unmodifiableList(fixedColumns);
   }
 
   public void setFixedColumns(List<FixedColumn> fixedColumns) {
-    this.fixedColumns = fixedColumns;
+    this.fixedColumns = new ArrayList<>(requireNonNull(fixedColumns));
+  }
+
+  public void addFixedColumn(FixedColumn fixedColumn) {
+    fixedColumns.add(requireNonNull(fixedColumn));
   }
 
   public List<ForeignKey> getForeignKeys() {
-    return foreignKeys;
+    return Collections.unmodifiableList(foreignKeys);
   }
 
   public void setForeignKeys(List<ForeignKey> foreignKeys) {
-    this.foreignKeys = foreignKeys;
+    this.foreignKeys = new ArrayList<>(requireNonNull(foreignKeys));
+  }
+
+  public void addForeignKey(ForeignKey foreignKey) {
+    foreignKeys.add(foreignKey);
   }
 
   @Override

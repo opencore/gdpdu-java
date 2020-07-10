@@ -19,6 +19,9 @@ import java.util.StringJoiner;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
+
+import static java.util.Objects.requireNonNull;
+
 public class Media {
 
   @NotBlank private String name;
@@ -40,15 +43,23 @@ public class Media {
   }
 
   public void setPreCommands(List<String> preCommands) {
-    this.preCommands = preCommands;
+    this.preCommands = new ArrayList<>(requireNonNull(preCommands));
+  }
+
+  public void addPreCommand(String command) {
+    preCommands.add(requireNonNull(command));
   }
 
   public List<Table> getTables() {
-    return tables;
+    return Collections.unmodifiableList(tables);
   }
 
   public void setTables(List<Table> tables) {
-    this.tables = tables;
+    this.tables = new ArrayList<>(requireNonNull(tables));
+  }
+
+  public void addTable(Table table) {
+    tables.add(requireNonNull(table));
   }
 
   public List<String> getPostCommands() {
@@ -56,7 +67,11 @@ public class Media {
   }
 
   public void setPostCommands(List<String> postCommands) {
-    this.postCommands = postCommands;
+    this.postCommands = new ArrayList<>(requireNonNull(postCommands));
+  }
+
+  public void addPostCommand(String command) {
+    postCommands.add(requireNonNull(command));
   }
 
   public String getAcceptNotables() {

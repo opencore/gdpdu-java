@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.StringJoiner;
 import javax.validation.Valid;
 
+
+import static java.util.Objects.requireNonNull;
+
 public class VariableLength {
 
   private String columnDelimiter = ";";
@@ -62,7 +65,11 @@ public class VariableLength {
   }
 
   public void setVariablePrimaryKeys(List<VariableColumn> variablePrimaryKeys) {
-    this.variablePrimaryKeys = variablePrimaryKeys;
+    this.variablePrimaryKeys = new ArrayList<>(requireNonNull(variablePrimaryKeys));
+  }
+
+  public void addVariablePrimaryKey(VariableColumn variablePrimaryKey) {
+    variablePrimaryKeys.add(requireNonNull(variablePrimaryKey));
   }
 
   public List<VariableColumn> getVariableColumns() {
@@ -70,7 +77,11 @@ public class VariableLength {
   }
 
   public void setVariableColumns(List<VariableColumn> variableColumns) {
-    this.variableColumns = variableColumns;
+    this.variableColumns = new ArrayList<>(requireNonNull(variableColumns));
+  }
+
+  public void addVariableColumn(VariableColumn variableColumn) {
+    variableColumns.add(requireNonNull(variableColumn));
   }
 
   public List<ForeignKey> getForeignKeys() {
@@ -78,7 +89,11 @@ public class VariableLength {
   }
 
   public void setForeignKeys(List<ForeignKey> foreignKeys) {
-    this.foreignKeys = foreignKeys;
+    this.foreignKeys = new ArrayList<>(requireNonNull(foreignKeys));
+  }
+
+  public void addForeignKey(ForeignKey foreignKey) {
+    foreignKeys.add(foreignKey);
   }
 
   @Override

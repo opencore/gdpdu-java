@@ -15,10 +15,14 @@ package com.opencore.gdpdu.index.models;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Das Element DataSet ist das oberste Element (document-Element) in der Hierarchie des XML-Dokumentes.
@@ -38,7 +42,11 @@ public class DataSet {
   }
 
   public void setExtensions(List<Extension> extensions) {
-    this.extensions = extensions;
+    this.extensions = new ArrayList<>(requireNonNull(extensions));
+  }
+
+  public void addExtension(Extension extension) {
+    extensions.add(requireNonNull(extension));
   }
 
   /**
@@ -61,7 +69,7 @@ public class DataSet {
   }
 
   public void setDataSupplier(DataSupplier dataSupplier) {
-    this.dataSupplier = dataSupplier;
+    this.dataSupplier = requireNonNull(dataSupplier);
   }
 
   /**
@@ -74,7 +82,11 @@ public class DataSet {
   }
 
   public void setPreCommands(List<String> preCommands) {
-    this.preCommands = preCommands;
+    this.preCommands = new ArrayList<>(requireNonNull(preCommands));
+  }
+
+  public void addPreCommand(String command) {
+    preCommands.add(requireNonNull(command));
   }
 
   /**
@@ -85,7 +97,11 @@ public class DataSet {
   }
 
   public void setMedia(List<Media> media) {
-    this.media = media;
+    this.media = new ArrayList<>(requireNonNull(media));
+  }
+
+  public void addMedia(Media media) {
+    this.media.add(requireNonNull(media));
   }
 
   /**
@@ -98,7 +114,11 @@ public class DataSet {
   }
 
   public void setPostCommands(List<String> postCommands) {
-    this.postCommands = postCommands;
+    this.postCommands = new ArrayList<>(postCommands);
+  }
+
+  public void addPostCommand(String command) {
+    postCommands.add(requireNonNull(command));
   }
 
   @Override

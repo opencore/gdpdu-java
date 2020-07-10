@@ -22,6 +22,9 @@ import javax.validation.constraints.PositiveOrZero;
 
 import com.opencore.gdpdu.index.validation.ValidFixedColumn;
 
+
+import static java.util.Objects.requireNonNull;
+
 /**
  * Definiert eine Spalte (=Column) in einer Datei vom Typ FixedLength.
  */
@@ -94,7 +97,11 @@ public class FixedColumn {
   }
 
   public void setMappings(List<Mapping> mappings) {
-    this.mappings = mappings;
+    this.mappings = new ArrayList<>(mappings);
+  }
+
+  public void addMapping(Mapping mapping) {
+    mappings.add(requireNonNull(mapping));
   }
 
   public Range getFixedRange() {
