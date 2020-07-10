@@ -13,6 +13,7 @@
 package com.opencore.gdpdu.index.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import javax.validation.Valid;
@@ -35,7 +36,7 @@ public class Media {
   }
 
   public List<String> getPreCommands() {
-    return preCommands;
+    return Collections.unmodifiableList(preCommands);
   }
 
   public void setPreCommands(List<String> preCommands) {
@@ -51,7 +52,7 @@ public class Media {
   }
 
   public List<String> getPostCommands() {
-    return postCommands;
+    return Collections.unmodifiableList(postCommands);
   }
 
   public void setPostCommands(List<String> postCommands) {

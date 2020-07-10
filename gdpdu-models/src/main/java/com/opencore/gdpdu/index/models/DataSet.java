@@ -13,6 +13,7 @@
 package com.opencore.gdpdu.index.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import javax.validation.Valid;
@@ -33,7 +34,7 @@ public class DataSet {
   private List<String> postCommands = new ArrayList<>();
 
   public List<Extension> getExtensions() {
-    return extensions;
+    return Collections.unmodifiableList(extensions);
   }
 
   public void setExtensions(List<Extension> extensions) {
@@ -69,7 +70,7 @@ public class DataSet {
    * Diese Commands werden vor dem gesamten Importprozess ausgeführt.
    */
   public List<String> getPreCommands() {
-    return preCommands;
+    return Collections.unmodifiableList(preCommands);
   }
 
   public void setPreCommands(List<String> preCommands) {
@@ -80,7 +81,7 @@ public class DataSet {
    * Definiert den Inhalt der Datenträger.
    */
   public List<Media> getMedia() {
-    return media;
+    return Collections.unmodifiableList(media);
   }
 
   public void setMedia(List<Media> media) {
@@ -93,7 +94,7 @@ public class DataSet {
    * Diese Commands werden nach dem gesamten Importprozess ausgeführt.
    */
   public List<String> getPostCommands() {
-    return postCommands;
+    return Collections.unmodifiableList(postCommands);
   }
 
   public void setPostCommands(List<String> postCommands) {

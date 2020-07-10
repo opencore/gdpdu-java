@@ -15,7 +15,7 @@ import com.opencore.gdpdu.index.annotations.Column;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClassRegistry {
+public final class ClassRegistry {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClassRegistry.class);
 
@@ -24,17 +24,18 @@ public class ClassRegistry {
    */
   private static final Map<Class<?>, Map<String, ColumnInfo>> COLUMN_INFO_MAP = new HashMap<>();
 
+  private ClassRegistry() {
+  }
+
   /**
    * This method takes a class and retrieves all fields and checks all that are annotated with the {@link Column} annotation.
    * It then builds a Map of field names to {@link Method} objects for the setters.
-   * @return
    */
   public static Map<String, ColumnInfo> registerClass(Class<?> clazz) throws ParsingException {
     if (COLUMN_INFO_MAP.containsKey(clazz)) {
       return null;
     }
 
-    Map<String, Field> fieldMap = getAllFields(clazz);
     BeanInfo info;
     try {
       info = Introspector.getBeanInfo(clazz);
@@ -42,6 +43,7 @@ public class ClassRegistry {
       throw new ParsingException(e);
     }
 
+    Map<String, Field> fieldMap = getAllFields(clazz);
     Map<String, ColumnInfo> infoMap = new HashMap<>();
     for (PropertyDescriptor propertyDescriptor : info.getPropertyDescriptors()) {
       Field field = fieldMap.get(propertyDescriptor.getName());

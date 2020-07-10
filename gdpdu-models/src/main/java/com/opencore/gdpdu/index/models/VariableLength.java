@@ -13,6 +13,7 @@
 package com.opencore.gdpdu.index.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import javax.validation.Valid;
@@ -57,7 +58,7 @@ public class VariableLength {
   }
 
   public List<VariableColumn> getVariablePrimaryKeys() {
-    return variablePrimaryKeys;
+    return Collections.unmodifiableList(variablePrimaryKeys);
   }
 
   public void setVariablePrimaryKeys(List<VariableColumn> variablePrimaryKeys) {
@@ -65,7 +66,7 @@ public class VariableLength {
   }
 
   public List<VariableColumn> getVariableColumns() {
-    return variableColumns;
+    return Collections.unmodifiableList(variableColumns);
   }
 
   public void setVariableColumns(List<VariableColumn> variableColumns) {
@@ -73,7 +74,7 @@ public class VariableLength {
   }
 
   public List<ForeignKey> getForeignKeys() {
-    return foreignKeys;
+    return Collections.unmodifiableList(foreignKeys);
   }
 
   public void setForeignKeys(List<ForeignKey> foreignKeys) {

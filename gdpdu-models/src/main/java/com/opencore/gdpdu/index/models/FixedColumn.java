@@ -13,6 +13,7 @@
 package com.opencore.gdpdu.index.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import javax.validation.Valid;
@@ -89,7 +90,7 @@ public class FixedColumn {
   }
 
   public List<Mapping> getMappings() {
-    return mappings;
+    return Collections.unmodifiableList(mappings);
   }
 
   public void setMappings(List<Mapping> mappings) {
