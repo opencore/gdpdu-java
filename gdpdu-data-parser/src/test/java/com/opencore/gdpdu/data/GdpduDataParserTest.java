@@ -34,4 +34,18 @@ public class GdpduDataParserTest {
     assertEquals("foo", testModel.getFoo());
     assertEquals(10, testModel.getBar());
   }
+
+  @Test
+  void testParsing2() throws ParsingException {
+    List<TestModel2> models = GdpduDataParser.parseTable("src/test/resources/data2/index.xml", "Testdatei Nr. 1", TestModel2.class);
+
+    assertNotNull(models);
+    assertEquals(3, models.size());
+
+    TestModel2 testModel = models.get(0);
+    assertEquals("A", testModel.getFoo());
+    assertEquals("B", testModel.getBar());
+
+    //assertEquals("", models.get(1).getBar());
+  }
 }

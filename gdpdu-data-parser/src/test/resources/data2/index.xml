@@ -24,9 +24,11 @@
         </VariableColumn>
         <VariableColumn>
           <Name>bar</Name>
-          <Numeric>
-            <Accuracy>2</Accuracy>
-          </Numeric>
+          <AlphaNumeric/>
+        </VariableColumn>
+        <VariableColumn>
+          <Name>baz</Name>
+          <AlphaNumeric/>
         </VariableColumn>
       </VariableLength>
     </Table>

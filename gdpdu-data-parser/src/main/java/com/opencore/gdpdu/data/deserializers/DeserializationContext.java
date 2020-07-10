@@ -12,11 +12,21 @@
  */
 package com.opencore.gdpdu.data.deserializers;
 
+import java.nio.charset.Charset;
+
 public class DeserializationContext {
 
   private boolean trim;
   private String digitGroupingSymbol;
   private String decimalSymbol;
+
+  private String recordDelimiter;
+  private String columnDelimiter;
+  private String textEncapsulator;
+
+  private long skipNumBytes;
+
+  private Charset charset;
 
   public boolean isTrim() {
     return trim;
@@ -40,5 +50,48 @@ public class DeserializationContext {
 
   public void setDecimalSymbol(String decimalSymbol) {
     this.decimalSymbol = decimalSymbol;
+  }
+
+  public String getRecordDelimiter() {
+    return recordDelimiter;
+  }
+
+  public void setRecordDelimiter(String recordDelimiter) {
+    this.recordDelimiter = recordDelimiter;
+  }
+
+  public String getColumnDelimiter() {
+    return columnDelimiter;
+  }
+
+  public void setColumnDelimiter(String columnDelimiter) {
+    this.columnDelimiter = columnDelimiter;
+  }
+
+  public String getTextEncapsulator() {
+    return textEncapsulator;
+  }
+
+  public void setTextEncapsulator(String textEncapsulator) {
+    this.textEncapsulator = textEncapsulator;
+  }
+
+  public long getSkipNumBytes() {
+    return skipNumBytes;
+  }
+
+  public void setSkipNumBytes(long skipNumBytes) {
+    if (skipNumBytes < 0) {
+      throw new IllegalArgumentException("'skipNumBytes' must be 0 or larger");
+    }
+    this.skipNumBytes = skipNumBytes;
+  }
+
+  public Charset getCharset() {
+    return charset;
+  }
+
+  public void setCharset(Charset charset) {
+    this.charset = charset;
   }
 }

@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,9 +40,6 @@ import com.opencore.gdpdu.index.models.Range;
 import com.opencore.gdpdu.index.models.Table;
 import com.opencore.gdpdu.index.models.VariableColumn;
 import com.opencore.gdpdu.index.models.VariableLength;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,24 +51,28 @@ import org.slf4j.LoggerFactory;
  *
  * This parser is not thread-safe.
  */
-public class GdpduDataParser {
+public final class GdpduDataParser {
 
   private static final Logger LOG = LoggerFactory.getLogger(GdpduDataParser.class);
 
+  private GdpduDataParser() {
+  }
+
+  public static <T> List<T> parseTable(String indexXml, String tableName, Class<T> clazz) throws ParsingException {
+    return parseTable(new File(Objects.requireNonNull(indexXml)), tableName, clazz);
+  }
+
   /**
    * Parses a single {@link Table} from a specific {@code index.xml} file into a List of domain objects.
-   *
-   * This will search for all files in a specific directory.
    */
-  public static <T> List<T> parseTable(String indexXml, String tableName, Class<T> clazz) throws ParsingException {
+  @SuppressWarnings("WeakerAccess")
+  public static <T> List<T> parseTable(File indexXml, String tableName, Class<T> clazz) throws ParsingException {
     Objects.requireNonNull(indexXml, "`indexXml` can't be null");
-
     // TODO Validate that it can be read etc. I have a method somewhere
-    File indexXmlFile = new File(indexXml);
 
     DataSet dataSet;
     try {
-      dataSet = parseIndexXml(new FileInputStream(indexXmlFile));
+      dataSet = parseIndexXml(new FileInputStream(indexXml));
     } catch (FileNotFoundException e) {
       throw new ParsingException(e);
     }
@@ -93,7 +93,7 @@ public class GdpduDataParser {
       throw new ParsingException("Table could not be found, aborting");
     }
 
-    File dataFile = new File(indexXmlFile.getAbsoluteFile().getParentFile(), table.getUrl());
+    File dataFile = new File(indexXml.getAbsoluteFile().getParentFile(), table.getUrl());
     try (InputStream fis = new FileInputStream(dataFile)) {
       return parseTable(fis, table, clazz);
     } catch (IOException e) {
@@ -147,37 +147,32 @@ public class GdpduDataParser {
     Objects.requireNonNull(table, "'table' can't be null");
     Objects.requireNonNull(clazz, "'clazz' can't be null");
 
-    // Construct the proper CSVFormat
-    // NOTE: Apache Commons CSV does not support specifying the line ending
     VariableLength variableLength = table.getVariableLength();
-    CSVFormat format = CSVFormat
-      .newFormat(variableLength.getColumnDelimiter().charAt(0))
-      .withQuote(variableLength.getTextEncapsulator().charAt(0));
-    LOG.debug("Parsing with settings: [{}]", format);
-
-    // We first parse the file into a generic "record" that's based only on Strings
-    CSVParser parser;
-    try {
-      // TODO: Don't hardcode the charset, take it from the index.xml file
-      parser = CSVParser.parse(tableStream, Charset.forName("Cp1252"), format);
-    } catch (IOException e) {
-      throw new ParsingException(e);
-    }
 
     LongRange range = fillDefaults(table.getRange());
 
-    // Convert the "generic" record into the specific type
+    // TODO: Only supports VariableLength for now
     DeserializationContext context = new DeserializationContext();
     context.setDecimalSymbol(table.getDecimalSymbol());
     context.setDigitGroupingSymbol(table.getDigitGroupingSymbol());
+    context.setColumnDelimiter(table.getVariableLength().getColumnDelimiter());
+    context.setRecordDelimiter(table.getVariableLength().getRecordDelimiter());
+    context.setTextEncapsulator(table.getVariableLength().getTextEncapsulator());
     context.setTrim(false);
+    context.setSkipNumBytes(table.getSkipNumBytes());
+    context.setCharset(table.getEncoding().getCharset());
 
+    // We first parse the file into a generic "record" that's based only on Strings
+    GdpduDataLexer lexer = new GdpduDataLexer(context);
+    List<Record> records = lexer.parseData(tableStream);
+
+    // Convert the "generic" record into the specific type
     List<T> results = new ArrayList<>();
     try {
       // GDPdU seems to be "1" based. We increment the index at the beginning of the loop so we start at 0 here
       int index = 0;
       int count = 0;
-      for (CSVRecord record : parser) {
+      for (Record record : records) {
         index++;
         if (index < range.from) {
           continue;
@@ -274,7 +269,7 @@ public class GdpduDataParser {
   }
 
   // TODO: This is specific to variable length stuff now, need to see if this can be made generic enough to support fixed length as well
-  private static <T> T parseRecord(CSVRecord record, Table table, DeserializationContext context, Class<T> clazz) throws ParsingException {
+  private static <T> T parseRecord(Record record, Table table, DeserializationContext context, Class<T> clazz) throws ParsingException {
     Objects.requireNonNull(record, "'record' can't be null");
     Objects.requireNonNull(table, "'table' can't be null");
     Objects.requireNonNull(clazz, "'clazz' can't be null");
@@ -286,8 +281,8 @@ public class GdpduDataParser {
     columns.addAll(table.getVariableLength().getVariablePrimaryKeys());
     columns.addAll(table.getVariableLength().getVariableColumns());
 
-    if (columns.size() != record.size()) {
-      throw new ParsingException("The table definition has [" + columns.size() + "] columns, but the parsed record has [" + record.size() + "]");
+    if (columns.size() != record.getColumns().size()) {
+      throw new ParsingException("The table definition has [" + columns.size() + "] columns, but the parsed record has [" + record.getColumns().size() + "]");
     }
 
     T t = newInstance(clazz);
@@ -295,7 +290,7 @@ public class GdpduDataParser {
     // So we iterate over the defined columns here
     for (int i = 0; i < columns.size(); i++) {
       VariableColumn currentColumn = columns.get(i);
-      String currentValue = record.get(i);
+      String currentValue = record.getColumns().get(i);
 
       // Validation happens later
       if (currentValue == null || currentValue.isBlank()) {
