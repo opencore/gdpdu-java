@@ -42,12 +42,13 @@
       <SkipNumBytes>100</SkipNumBytes>
       <Range>
         <From>2</From>
-        <Length>2</Length>
+        <Length>3</Length>
       </Range>
       <Epoch>75</Epoch>
       <VariableLength>
         <ColumnDelimiter>||</ColumnDelimiter>
         <RecordDelimiter>&#10;</RecordDelimiter>
+        <TextEncapsulator>'''</TextEncapsulator>
         <VariablePrimaryKey>
           <Name>PrimaryKey</Name>
           <AlphaNumeric/>

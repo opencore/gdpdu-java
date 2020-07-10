@@ -298,7 +298,7 @@ public final class GdpduIndexParser {
     Range range = new Range();
     element.processTextElement("From", range::setFrom);
     element.processOptionalTextElement("To", range::setTo);
-    element.processOptionalTextElement("To", range::setLength);
+    element.processOptionalTextElement("Length", range::setLength);
     return range;
   }
 

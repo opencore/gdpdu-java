@@ -26,7 +26,7 @@ public class Table {
   private String digitGroupingSymbol = ".";
   private long skipNumBytes;
   @Valid private Range range;
-  private String epoch = "30";
+  private String epoch = "30"; // TODO: Maybe make this an int or short?
   @Valid private VariableLength variableLength;
   @Valid private FixedLength fixedLength;
 

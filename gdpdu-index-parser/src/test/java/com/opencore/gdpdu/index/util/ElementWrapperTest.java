@@ -51,7 +51,10 @@ class ElementWrapperTest {
     assertDoesNotThrow(() -> wrapper.processOptionalTextElement("doesntexist", s -> {
       throw new RuntimeException("foo");
     }));
-
   }
 
+  @Test
+  void testNull() {
+    assertThrows(NullPointerException.class, () -> new ElementWrapper(null));
+  }
 }

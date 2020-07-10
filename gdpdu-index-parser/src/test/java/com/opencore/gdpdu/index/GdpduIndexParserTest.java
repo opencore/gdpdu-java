@@ -21,10 +21,12 @@ import com.opencore.gdpdu.index.models.Encoding;
 import com.opencore.gdpdu.index.models.Extension;
 import com.opencore.gdpdu.index.models.Media;
 import com.opencore.gdpdu.index.models.Table;
+import com.opencore.gdpdu.index.models.VariableLength;
 import org.junit.jupiter.api.Test;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GdpduIndexParserTest {
@@ -75,5 +77,20 @@ class GdpduIndexParserTest {
     assertEquals("Testdatei", table.getDescription());
     assertEquals("20.02.2020", table.getValidity().getRange().getFrom());
     assertEquals(Encoding.OEM, table.getEncoding());
+    assertEquals(",", table.getDecimalSymbol());
+    assertEquals("  ", table.getDigitGroupingSymbol());
+    assertEquals(100, table.getSkipNumBytes());
+    assertEquals("2", table.getRange().getFrom());
+    assertEquals("3", table.getRange().getLength());
+    assertEquals("75", table.getEpoch());
+    assertNull(table.getFixedLength());
+
+    VariableLength variableLength = table.getVariableLength();
+    assertEquals("||", variableLength.getColumnDelimiter());
+    assertEquals("\n", variableLength.getRecordDelimiter());
+    assertEquals("'''", variableLength.getTextEncapsulator());
+    assertEquals(1, variableLength.getVariablePrimaryKeys().size());
+    assertEquals(7, variableLength.getVariableColumns().size());
+
   }
 }
