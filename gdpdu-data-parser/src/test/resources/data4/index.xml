@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DataSet SYSTEM "gdpdu-01-09-2004.dtd">
+<DataSet>
+  <Version>1.0</Version>
+  <DataSupplier>
+    <Name>OpenCore GmbH &amp; Co. KG</Name>
+    <Location>Wedel, Deutschland</Location>
+    <Comment>Testdatei nach GoBD 2019</Comment>
+  </DataSupplier>
+  <Media>
+    <Name>CD Nummer 1</Name>
+    <Command>PreTables</Command>
+    <Table>
+      <URL>data.csv</URL>
+      <Name>Testdatei Nr. 1</Name>
+      <Description>Eine ganz simple Testdatei</Description>
+      <UTF8/>
+      <VariableLength>
+        <ColumnDelimiter>|C|</ColumnDelimiter>
+        <RecordDelimiter>|R|</RecordDelimiter>
+        <VariableColumn>
+          <Name>foo</Name>
+          <AlphaNumeric/>
+        </VariableColumn>
+        <VariableColumn>
+          <Name>bar</Name>
+          <Numeric>
+            <Accuracy>2</Accuracy>
+          </Numeric>
+        </VariableColumn>
+      </VariableLength>
+    </Table>
+  </Media>
+</DataSet>
