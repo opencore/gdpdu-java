@@ -37,7 +37,7 @@
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
     <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
-    <pitest-maven.version>1.6.3</pitest-maven.version>
+    <pitest-maven.version>1.6.5</pitest-maven.version>
     <pitest-junit5-plugin.version>0.12</pitest-junit5-plugin.version>
 
     <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../gdpdu-aggregator/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
