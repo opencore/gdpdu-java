@@ -28,7 +28,7 @@
   <description>This library can parse INDEX.XML files according to the GDPdU spec</description>
 
   <properties>
-    <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
+    <hibernate-validator.version>7.0.3.Final</hibernate-validator.version>
     <jakarta.el.version>3.0.3</jakarta.el.version>
   </properties>
 
