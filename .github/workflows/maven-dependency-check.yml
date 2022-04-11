@@ -28,7 +28,7 @@ jobs:
           clean
           org.owasp:dependency-check-maven:aggregate
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: dependency-check-report
           path: target/dependency-check-report.html
